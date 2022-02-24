@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create Email{% endblock title %}
+
+{% block content %}
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+
+        <div class="row">
+            <div class="col-6">
+                {{ form.subject|as_crispy_field }}
+            </div>
+            <div class="col-6">
+                {{ form.slug|as_crispy_field }}
+            </div>
+            <div class="col-12">
+                {{ form.text|as_crispy_field }}
+            </div>
+            <div class="col-6">
+                {{ form.receiver|as_crispy_field }}
+            </div>
+            <div class="col-6">
+                <p id="label" onclick="createLabel();"></p>
+                {{ form.label|as_crispy_field }}
+            </div>
+{#            <div class="col-6">#}
+{#                {{ form.file|as_crispy_field }}#}
+{#            </div>#}
+
+        </div>
+        <input type="submit" name="sent">
+        {% if form.error %}
+            {% for field in form %}
+                {% for error in field.errors %}
+                    {{ error|escape }}
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+    </form>
+{% endblock content %}
