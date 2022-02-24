@@ -1,20 +1,18 @@
-from django.contrib.auth.views import LoginView, PasswordChangeView
-from django.http import HttpResponse
-from django.urls import reverse_lazy
-
-from .forms import SignupForm
-from .tokens import account_activation_token
-from django.shortcuts import render, redirect
-from django.views.generic import View
 from django.contrib import messages
+from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.contrib.sites.shortcuts import get_current_site
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
+from django.http import HttpResponse
+from django.shortcuts import render
 from django.template.loader import render_to_string
-from django.contrib.auth import login, authenticate
-from .models import User
+from django.urls import reverse_lazy
+from django.utils.encoding import force_bytes
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_encode
+from django.views.generic import View
+from .forms import SignupForm
+from .models import User
+from .tokens import account_activation_token
 
 
 # Sign Up View
@@ -61,14 +59,9 @@ class ActivateAccount(View):
 
         if user is not None and account_activation_token.check_token(user, token):
             user.is_active = True
-            user.username += '@gmail.com'
+            user.username += '@mkp.com'
             user.save()
-            # login(request, user)
             messages.success(request, ('Your account have been confirmed.'))
-            #     return redirect('/registration/home.html')
-            # else:
-            #     messages.warning(request, ('The confirmation link was invalid, possibly because it has already been used.'))
-            #     return redirect('/registration/home.html')
             return HttpResponse('اکانت شما با موفقیت فعال شد. برای ورود <a href="/login">کلیک</a> کنید.')
         else:
             return HttpResponse('لینک فعال سازی منقضی شده است. <a href="/registration">دوباره امتحان کنید.</a>')
@@ -88,8 +81,6 @@ class PasswordChange(PasswordChangeView):
 
 
 def Profile(View):
-
-
     # model = User
     # template_name = "registration/profile.html"
     # form_class = ProfileForm
