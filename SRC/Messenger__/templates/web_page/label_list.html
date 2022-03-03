@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    {% for label in object_list %}
+        <a href="/web_page/label-Detail/{{ label.slug }}">{{ label.title }}</a>
+    {% endfor %}
+</body>
+</html>
+{#{% extends 'web_page/layout/_base.html' %}#}
+{#{% block title %}list labels{% endblock %}#}
+{#{% block labels %}#}
+{#    <section>#}
+{#        <div class="panel panel-default p-0  m-t-20">#}
+{#            <div class="panel-body p-0">#}
+{#                <div class="list-group no-border">#}
+{#                    {% for label in object_list %}#}
+{#                        <a href="#" class="list-group-item"><span#}
+{#                                class="fa fa-circle text-info pull-right"></span>{{ label.title }}#}
+{#                        </a>#}
+{#                    {% endfor %}#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </section>#}
+{#{% endblock %}#}
