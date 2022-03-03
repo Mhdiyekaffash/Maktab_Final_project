@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7bce9d9f-679d-4190-8eb1-693c8dd14bc9" name="Changes" comment="backup database">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,7 +117,7 @@
       <workItem from="1645737599188" duration="5675000" />
       <workItem from="1645766764413" duration="5394000" />
       <workItem from="1645793219764" duration="2270000" />
-      <workItem from="1645872656206" duration="781000" />
+      <workItem from="1645872656206" duration="348000" />
     </task>
     <task id="LOCAL-00001" summary="faz1">
       <created>1645738163038</created>
