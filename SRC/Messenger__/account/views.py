@@ -88,8 +88,6 @@ class PasswordChange(PasswordChangeView):
 
 
 def Profile(View):
-
-
     # model = User
     # template_name = "registration/profile.html"
     # form_class = ProfileForm

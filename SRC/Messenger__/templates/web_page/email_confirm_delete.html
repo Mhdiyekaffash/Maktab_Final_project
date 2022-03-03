@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delete Email</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <form method="post" class="flw_pic">{% csrf_token %}
+        <p>Are you sure you want to delete "{{ object }}"?</p>
+        {% if object.is_trash == False %}
+            <button class="btn_blue" type="submit">Confirm</button>
+            {% else %}
+            deleted
+        {% endif %}
+
+        <button class="btn_blue"><a style="color: white" href="{% url 'email_detail' email.pk %}">Refuse</a></button>
+    </form>
+</body>
+</html>

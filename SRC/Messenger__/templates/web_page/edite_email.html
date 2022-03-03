@@ -1,0 +1,18 @@
+{{% extends 'web_page/layout/_base.html' %}
+{% block title %}Update Email{% endblock %}
+{% block body %}
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
+    <div class="container flw_pic">
+
+            <label><b>Trash</b></label><br>
+            {{ form.is_trash}}<br>
+            <label><b>Archive</b></label><br>
+            {{ form.is_starred }}<br>
+            <label><b>Draft</b></label><br>
+            {{ form.is_draft}}<br>
+            <button type="submit" class="btn_blue">Update</button>
+
+
+        </div>
+</form>
+{% endblock body %}

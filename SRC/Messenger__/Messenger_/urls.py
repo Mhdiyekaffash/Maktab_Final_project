@@ -18,9 +18,11 @@ from django.contrib import admin
 from account.views import Login, PasswordChange
 from django.urls import path, include
 from account.views import Register, ActivateAccount
+from web_page.views import DisplayAllEmail
 
 urlpatterns = [
     # path('', include('account.urls')),
+    path('', DisplayAllEmail.as_view(), name='home_inbox'),
     path('admin/', admin.site.urls),
     path('login/', Login.as_view(), name='login'),
     path('password_change/', PasswordChange.as_view(), name='password_change'),
