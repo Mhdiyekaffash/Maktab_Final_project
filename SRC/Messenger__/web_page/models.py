@@ -7,6 +7,7 @@ from django.utils.text import slugify
 class Label(models.Model):
     title = models.CharField(max_length=20, null=False)
     slug = models.SlugField(max_length=20, unique=True, null=True)
+    user = models.ForeignKey(User, related_name='label_user', on_delete=models.CASCADE, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -52,7 +53,7 @@ class Email(models.Model):
     receiver_to = models.ManyToManyField(User, related_name='receivers_to')
     receiver_cc = models.ManyToManyField(User, related_name='receivers_cc', null=True, blank=True)
     receiver_bcc = models.ManyToManyField(User, related_name='receivers_bcc', null=True, blank=True)
-    label = models.ManyToManyField(Label, related_name='labels', null=True, blank=True)
+    label = models.ManyToManyField(Label, related_name='labels', blank=True)
     slug = models.SlugField(max_length=20, unique=True, null=True)
     is_starred = models.BooleanField(default=False)
     is_draft = models.BooleanField(default=False)

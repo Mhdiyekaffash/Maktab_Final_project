@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
+    <div class="container flw_pic">
+        <label><b>Profile Photo</b></label><br>
+        {{ form.profile_photo }}<br>
+        <label><b>first name</b></label><br>
+        {{ form.first_name }}<br>
+        <label><b>last name</b></label><br>
+        {{ form.last_name }}<br>
+        <label><b>email</b></label><br>
+        {{ form.email }}<br>
+        <label><b>birth date</b></label><br>
+        {{ form.birthday }}<br>
+        <label><b>phone number</b></label><br>
+        {{ form.phone_number }}<br>
+        <label><b>other email</b></label><br>
+        {{ form.other_emails }}<br>
+        <button type="submit" class="btn_blue">Update</button>
+    </div>
+</form>
+</body>
+</html>

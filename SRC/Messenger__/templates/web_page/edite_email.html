@@ -1,18 +1,43 @@
 {{% extends 'web_page/layout/_base.html' %}
 {% block title %}Update Email{% endblock %}
 {% block body %}
-<form method="post" enctype="multipart/form-data">{% csrf_token %}
-    <div class="container flw_pic">
 
-            <label><b>Trash</b></label><br>
-            {{ form.is_trash}}<br>
-            <label><b>Archive</b></label><br>
-            {{ form.is_starred }}<br>
-            <label><b>Draft</b></label><br>
-            {{ form.is_draft}}<br>
-            <button type="submit" class="btn_blue">Update</button>
+
+
+    <form method="post">{% csrf_token %}
+        <div class="container flw_pic">
+
+
+            {% if email.is_trash %}
+                <label><b>remove from Trash</b></label><br>
+                {{ form.is_trash }}<br>
+            {% else %}
+                <label><b>put in Trash</b></label><br>
+                {{ form.is_trash }}<br>
+            {% endif %}
+
+
+            {% if email.is_starred %}
+                <label><b>remove from Archive</b></label><br>
+                {{ form.is_starred }}<br>
+            {% else %}
+                <label><b>put in archive</b></label><br>
+                {{ form.is_starred }}<br>
+            {% endif %}
+
+
+            {% if email.is_draft %}
+                <label><b>remove from Draft</b></label><br>
+                {{ form.is_draft }}<br>
+            {% else %}
+                <label><b>put in draft</b></label><br>
+                {{ form.is_draft }}<br>
+            {% endif %}
+
+
+            <button type="submit" class="btn_blue">okay</button>
 
 
         </div>
-</form>
+    </form>
 {% endblock body %}

@@ -7,10 +7,8 @@
                     <div class="panel-body">
                     <h3 style="color: #0f6674"> To:</h3>
                         {% for email_to in emails_to %}
-{#                            {% if email_to.is_trash == Fulse %}#}
                             <table class="table table-hover mails">
                                 <tbody>
-
                                 <tr>
                                     <td class="mail-select">
                                         <label class="cr-styled">
@@ -40,7 +38,6 @@
 
                                 </tbody>
                             </table>
-{#                            {% endif %}#}
                         {% endfor %}
                         <hr>
                     <h3 style="color: #0f6674"> Cc:</h3>

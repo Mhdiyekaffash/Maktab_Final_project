@@ -7,11 +7,6 @@ class CreateEmailForm(forms.ModelForm):
         model = Email
         fields = ['subject', 'text', 'file', 'sign', 'is_draft']
 
-    # label = forms.ModelMultipleChoiceField(
-    #     queryset=Label.objects.all(),
-    #     widget=forms.CheckboxSelectMultiple
-    # )
-
 
 class EmailDetailForm(forms.ModelForm):
     class Meta:

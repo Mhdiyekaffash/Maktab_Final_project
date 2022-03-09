@@ -5,7 +5,8 @@
     <title>Title</title>
 </head>
 <body>
-    {{ object.title }}
+    <p style="color: #e83e8c">title : {{ object.title }}</p>
+    <p style="color: #00363a">Owner : {{ object.user }}</p>
     <button class="btn_blue"><i class="fa fa-trash"></i><a href="{% url 'label-Delete' label.slug %}">Delete label</a></button>
 </body>
 </html>

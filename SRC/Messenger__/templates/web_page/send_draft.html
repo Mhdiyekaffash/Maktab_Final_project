@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -30,7 +31,7 @@
         }
 
         input[type=submit] {
-            background-color: DodgerBlue;
+            background-color: #6fc2a5;
             color: #fff;
             cursor: pointer;
         }
@@ -66,15 +67,9 @@
 </head>
 <body>
 
-    <form autocomplete="off" action="" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
 
-        <p>subject : {{ form.subject }}</p>
-        <p>text : {{ form.text }}</p>
-{#        <p>label : {{ form.label }}</p>#}
-        <p>file : {{ form.file }}</p>
-        <p>sign : {{ form.sign }}</p>
-        <p>Draft : {{ form.is_draft }}</p>
+    <form autocomplete="off" action="" method="post">
+        {% csrf_token %}
 
         <div class="autocomplete" style="width:300px;">
             <input id="to" type="text" name="to" placeholder="to">
@@ -86,13 +81,7 @@
              <input id="bcc" type="text" name="bcc" placeholder="bcc">
         </div>
 
-        <div class="autocomplete" style="width:300px;">
-        <input id="label" type="text" name="label" placeholder="label">
-        </div>
-
-        <input type="submit" value="Send" name="send">
-        <input type="submit" value="Draft" name="draft">
-
+        <input type="submit" value="send">
     </form>
 
     <script type="text/javascript">
@@ -195,15 +184,12 @@
         }
 
         /*An array containing all the country names in the world:*/
-        {#var contacts_ = {{ contacts|safe }};#}
-        var labels_ = {{ labels|safe }};
-        {##}
-        {##}
-        {#autocomplete(document.getElementById("to"), contacts_);#}
-        {#autocomplete(document.getElementById("cc"), contacts_);#}
-        {#autocomplete(document.getElementById("bcc"), contacts_);#}
-        autocomplete(document.getElementById("label"), labels_);
+        var contacts_ = {{ contacts|safe }};
 
+
+        autocomplete(document.getElementById("to"), contacts_);
+        autocomplete(document.getElementById("cc"), contacts_);
+        autocomplete(document.getElementById("bcc"), contacts_);
     </script>
 
 </body>

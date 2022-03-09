@@ -96,7 +96,7 @@
 
     <hr class="mt-0 mb-4">
     <div class="row">
-        <div  class="grid">
+        <div class="grid">
             <!-- Profile picture card-->
             <div class="g-col-6">
                 <div class="card-header">
@@ -160,7 +160,7 @@
                                     {{ object.birthday }}
                                 {% endif %}
                             </div>
-                        <div class="col-md-6">
+                            <div class="col-md-6">
 
                                 {% if object.other_email %}
                                     <label class="small mb-1" for="inputBirthday">other_email</label>
@@ -168,7 +168,18 @@
                                 {% endif %}
                             </div>
                         </div>
-
+                        <div>
+                            <button class="btn_blue"><i class="fa fa-trash"></i><a
+                                    href="{% url 'delete-contact' object.pk %}">Delete
+                                Contact</a></button>
+                        </div>
+                        <div>
+                            <button class="btn_blue flw_pic" style="background: royalblue; color: white; padding: 5px;">
+                                <i
+                                        class="fa fa-edit"></i><a href="{% url 'edite_contact' object.pk %} "
+                                                                  style="color: white">Edit
+                            </a></button>
+                        </div>
                     </form>
                 </div>
             </div>
