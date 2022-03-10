@@ -85,12 +85,14 @@
         <div class="autocomplete" style="width:300px;">
              <input id="bcc" type="text" name="bcc" placeholder="bcc">
         </div>
+
         <div class="autocomplete" style="width:300px;">
-             <input id="label" type="text" name="label" placeholder="label">
+        <input id="label" type="text" name="label" placeholder="label">
         </div>
 
+        <input type="submit" value="Send" name="send">
+        <input type="submit" value="Draft" name="draft">
 
-        <input type="submit" value="Save">
     </form>
 
     <script type="text/javascript">
@@ -193,13 +195,13 @@
         }
 
         /*An array containing all the country names in the world:*/
-        var contacts_ = {{ contacts|safe }};
+        {#var contacts_ = {{ contacts|safe }};#}
         var labels_ = {{ labels|safe }};
-
-
-        autocomplete(document.getElementById("to"), contacts_);
-        autocomplete(document.getElementById("cc"), contacts_);
-        autocomplete(document.getElementById("bcc"), contacts_);
+        {##}
+        {##}
+        {#autocomplete(document.getElementById("to"), contacts_);#}
+        {#autocomplete(document.getElementById("cc"), contacts_);#}
+        {#autocomplete(document.getElementById("bcc"), contacts_);#}
         autocomplete(document.getElementById("label"), labels_);
 
     </script>

@@ -22,8 +22,9 @@ from web_page.views import DisplayAllEmail
 
 urlpatterns = [
     # path('', include('account.urls')),
-    path('', DisplayAllEmail.as_view(), name='home_inbox'),
+    path('', DisplayAllEmail.as_view(), name='home'),
     path('admin/', admin.site.urls),
+    path('', include('django.contrib.auth.urls')),
     path('login/', Login.as_view(), name='login'),
     path('password_change/', PasswordChange.as_view(), name='password_change'),
     path('account/', include('account.urls')),

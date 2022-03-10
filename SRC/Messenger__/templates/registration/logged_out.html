@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{#    Successfully logged out Click to enter#}
+{#    <a href="{% url 'login' %}">login</a>#}
+<form action="" method="post" >
+    {% csrf_token %}
+    <input type="submit" value="Logout">
+</form>
+</body>
+</html>

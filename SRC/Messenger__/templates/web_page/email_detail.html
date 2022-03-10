@@ -257,9 +257,7 @@
                                 <div>receiver to:
                                     {% for receiver in object.receiver_to.all %}
                                         <p style="color: green">
-                                            {% if user.get_username == receiver.username %}
-                                                {{ receiver.username }}
-                                            {% endif %}
+                                            {{ receiver.username }}
                                         </p>
                                     {% endfor %}
                                 </div>
@@ -268,9 +266,7 @@
                                 <div>receiver cc:
                                     {% for receiver in object.receiver_cc.all %}
                                         <p style="color: darksalmon">
-                                            {% if user.get_username == receiver.username %}
-                                                {{ receiver.username }}
-                                            {% endif %}
+                                            {{ receiver.username }}
                                         </p>
                                     {% endfor %}
                                 </div>
@@ -290,7 +286,8 @@
                                 <h5 style="color: #0f6674">Labels</h5>
                                 <p></p>
                                 {% for label in object.label.values %}
-                                    <p style="color: darkolivegreen">{{ label.title }}</p>
+                                    <p style="color: darkolivegreen"><a
+                                            href="/web_page/label-Detail/{{ label.slug }}">{{ label.title }}</a></p>
                                 {% endfor %}
 
                                 <hr style="color: #0c5460">
@@ -305,6 +302,14 @@
                                 {% endif %}
 
                                 <hr style="color: #0c5460">
+
+                                <div>
+                                    {% if object.is_draft %}
+                                        <button><a href="{% url 'send-from-draft' object.pk %}">send draft email</a>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            <hr style="color: #0c5460">
                                 <div style="margin-left: 500px">
 
                                     <a href="/web_page/email-replay/{{ object.pk }}">
@@ -343,23 +348,38 @@
                         </div>
                         <div>
                             <button class="btn_blue flw_pic"><i class="fa fa-edit"></i><a
-                                    href="{% url 'edit_email' email.pk %}">Edit
+                                    href="{% url 'edit_email' email.pk %}">Edit category
                             </a></button>
                         </div>
+
+                        <div>
+                            <button class="btn_blue flw_pic">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-bookmark-star-fill" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd"
+                                          d="M2 15.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.74.439L8 13.069l-5.26 2.87A.5.5 0 0 1 2 15.5zM8.16 4.1a.178.178 0 0 0-.32 0l-.634 1.285a.178.178 0 0 1-.134.098l-1.42.206a.178.178 0 0 0-.098.303L6.58 6.993c.042.041.061.1.051.158L6.39 8.565a.178.178 0 0 0 .258.187l1.27-.668a.178.178 0 0 1 .165 0l1.27.668a.178.178 0 0 0 .257-.187L9.368 7.15a.178.178 0 0 1 .05-.158l1.028-1.001a.178.178 0 0 0-.098-.303l-1.42-.206a.178.178 0 0 1-.134-.098L8.16 4.1z"/>
+                                </svg>
+                                <a
+                                        href="{% url 'addlabel' email.pk %}">Add label
+                                </a></button>
+                        </div>
+
 
                         <form method="post" action="">
                             {% csrf_token %}
                             <input type="submit" value="Delete">
                         </form>
-
+                        <hr style="color: #0c5460">
+                        <p style="color: #0f6674">Files</p>
+                        {% if object.file %}
+                            <a href="/media/{{ object.file }}">{{ object.file }}</a>
+                        {% endif %}
                     </main>
-
+                    {#                    <div>#}
+                    {#                        <button>{{ form.label }}</button>#}
+                    {#                    </div>#}
                 </div>
-                <hr style="color: #0c5460">
-            <p style="color: #0f6674">Files</p>
-                {% if object.file %}
-                    <a href="/media/{{ object.file }}">{{ object.file }}</a>
-                {% endif %}
+
 
             </div>
         </div>
@@ -367,3 +387,4 @@
         </html>
     </section>
 {% endblock %}
+

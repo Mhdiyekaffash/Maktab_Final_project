@@ -1,12 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    {% for label in labels %}
-        <p>{{ label }}</p>
+{% extends 'web_page/layout/_base.html' %}
+{% block title %}{% endblock %}
+{% block body %}
+     {% for email in emails %}
+        <p style="color: #00363a; margin: 30px"><a href="/web_page/email-detail/{{ email.pk }}">{{ email }}</a></p>
     {% endfor %}
-</body>
-</html>
+{% endblock %}

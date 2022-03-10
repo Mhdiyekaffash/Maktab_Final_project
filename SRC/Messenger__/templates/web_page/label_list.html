@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>label list</title>
 </head>
 <body>
-    {% for label in object_list %}
+    {% for label in labels %}
         <a href="/web_page/label-Detail/{{ label.slug }}">{{ label.title }}</a>
     {% endfor %}
 </body>
 </html>
+
 {#{% extends 'web_page/layout/_base.html' %}#}
 {#{% block title %}list labels{% endblock %}#}
 {#{% block labels %}#}

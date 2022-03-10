@@ -1,2 +1,20 @@
 pip install django-crispy-forms
 crispy_forms  ---> setting
+
+
+# namayesh File ham Dar email_detail.html line 361 anjam shode
+
+# todo: User.objects.filter(email=email).exists() --> true ya false  barmigrde age true bargardoone email dar site
+#  vojood dere age nbood nmishe#
+
+# f'{username}@eml.com'
+#
+# user_list=[user1,user2]
+#
+# User.objets.filter(pk__in=[user.pk for user in user_list])
+# User.objets.filter(Q(email__isnull=True)|Q(username__isnull=True))  -->select va or
+
+#  ~Q(email__isnull=True) ---> nbashe
+#  ~ | &
+# method haye html va karbirdeshoon ----> *************
+# email.reciever.set([user1,user2,user3])
