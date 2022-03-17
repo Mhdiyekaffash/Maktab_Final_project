@@ -150,6 +150,30 @@
             margin-top: 20px;
         }
 
+        .warn {
+            background-color: tomato;
+            color: white;
+            border: 2px solid black;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        .error {
+            background-color: #ffe047;
+            color: #2a2520;
+            border: 2px solid black;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        .success {
+            background-color: #45a68d;
+            color: white;
+            border: 2px solid black;
+            margin: 20px;
+            padding: 20px;
+        }
+
     </style>
 </head>
 
@@ -163,18 +187,25 @@
         <div class="row">
             <!-- Left sidebar -->
             {% include "web_page/layout/__leftsidbar.html" %}
-{#            {% block labels %}{% endblock %}#}
+
             <!-- Right Sidebar -->
             {% include "web_page/layout/__rightsidbar.html" %}
 
-                {% block body %}{% endblock %}
+            {% block body %}
 
+            {% endblock %}
         </div><!-- End row -->
 
 
     </div>
 
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"
+                        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+                        crossorigin="anonymous">
 
+                </script>
+                {% block script %}{% endblock script %}
 </body>
+
 </html>

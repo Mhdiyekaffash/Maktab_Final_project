@@ -1,15 +1,27 @@
+import csv
+import itertools
+import json
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from django.views import View
-from django.views.generic import ListView, DetailView, DeleteView, UpdateView
-from account.models import User
-from .forms import CreateEmailForm, ReplyForm, CreateContactForm, CreateLabelForm
-from .models import Email, ProfileContact, Label
 from django.db.models import Q
+from django.http import HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.utils import timezone
+from django.views import View
+from django.views.generic import DetailView, DeleteView, UpdateView
 
+from account.models import User
+from .forms import CreateEmailForm, ReplyForm, CreateContactForm, CreateLabelForm, SignatureModelForm
+from .models import Email, ProfileContact, Label, Signature, Filter, EmailFolder
 
-#  <----- Email section ----->
+"""
+<----- Email section ----->
+    CreateEmail, DisplayAllEmail, DisplayDetailEmail, Replay, Forward, Send Draft
+"""
+
 
 class CreateEmail(LoginRequiredMixin, View):
 
@@ -17,52 +29,67 @@ class CreateEmail(LoginRequiredMixin, View):
         form = CreateEmailForm()
         id = request.user.id
         contacts = User.objects.get(id=id).contact_user.all().values_list('email', flat=True)
-        labels = Label.objects.all().filter(user=request.user.id).values_list('title', flat=True).distinct()
+        signature_list = Signature.objects.filter(user=request.user).values_list('text', flat=True)
         return render(request, 'web_page/create_email.html', {"form": form,
                                                               'contacts': list(contacts),
-                                                              'labels': list(labels)})
+                                                              'signature_list': list(signature_list)})
 
     def post(self, request):
+
         form = CreateEmailForm(request.POST, request.FILES)
 
         receiver_to = request.POST["to"]  # Taken from the input
         receiver_cc = request.POST["cc"]  # ☝
         receiver_bcc = request.POST["bcc"]  # ☝
-        label = request.POST['label']  # ☝
+
+        if request.POST.get('selected_singature') != 'None':
+            signature = Signature.objects.get(text=request.POST['selected_singature'], user=request.user)
+        else:
+            signature = None
+
+        if receiver_to is None:
+            messages.add_message(request, messages.ERROR,
+                                 f'receiver to dont empty')
+            return HttpResponseRedirect("/")
 
         # The values taken from the input are comma separated and created as a list of recipients
         to_list = receiver_to.split(',')
         cc_list = receiver_cc.split(',')
-        bcc_list = receiver_bcc.split(',')
+        bcc_list1 = receiver_bcc.split(',')
 
-        labels_list = label.split(',')  # for label
+        receivers = to_list + cc_list + bcc_list1
+        receivers = [i for i in receivers if i]
+
+        for i in to_list:
+            if i == '':
+                messages.add_message(request, messages.ERROR, 'to is empty 🤷‍️')
+                return HttpResponseRedirect("/")
 
         users = User.objects.all().values_list('username', flat=True)
-        users_list = [i for i in users]  # List of all users who have an account on the site
 
-        labels_of_user = Label.objects.all().filter(user=request.user)
-        labels_of_user_list = [i for i in labels_of_user]
+        users_list = [i for i in users]  # List of all users who have an account on the site
 
         to_list = [i for i in to_list if i in users_list]  # List of all recipients (to) who have an account on the site
         cc_list = [i for i in cc_list if i in users_list]  # ☝  (cc)
-        bcc_list = [i for i in bcc_list if i in users_list]  # ☝  (bcc)
+        bcc_list = [i for i in bcc_list1 if i in users_list]  # ☝  (bcc)
 
-        labels_list = [i for i in labels_list if i in labels_of_user_list]
+        for i in receivers:
+            if i not in users_list:
+                messages.add_message(request, messages.WARNING,
+                                     f"Sorry, there is no user with this {i} account. 🤔")
+                return HttpResponseRedirect("/")
 
         # List of id all recipients who have an account on the site 👇
         list_id_to = [User.objects.get(username=i).id for i in to_list]
         list_id_cc = [User.objects.get(username=i).id for i in cc_list]
         list_id_bcc = [User.objects.get(username=i).id for i in bcc_list]
 
-        list_id_label = [Label.objects.get(title=i).id for i in labels_list]
-
         if form.is_valid():
             user_login = User.objects.get(id=request.user.id)
             email = Email(subject=form.cleaned_data['subject'],
                           text=form.cleaned_data['text'],
                           file=form.cleaned_data['file'],
-                          sign=form.cleaned_data['sign'],
-                          is_draft=form.cleaned_data['is_draft'],
+                          sign=signature,
                           sender=user_login)
 
             email.save()
@@ -70,9 +97,7 @@ class CreateEmail(LoginRequiredMixin, View):
             # For when we do not want to send the message and want to stay in the draft file 👇
             if 'draft' in request.POST:
 
-                email.is_draft = True
-                email.label.add(*list_id_label)
-                email.save()
+                EmailFolder(user=user_login, email=email, is_draft=True).save()
 
                 return redirect('/web_page/draft/')
 
@@ -84,18 +109,64 @@ class CreateEmail(LoginRequiredMixin, View):
                 email.receiver_cc.add(*list_id_cc)
                 email.receiver_bcc.add(*list_id_bcc)
 
-                email.label.add(*list_id_label)
+                EmailFolder(user=user_login, email=email).save()
 
+                for receiver in to_list:
+                    filters = Filter.objects.filter(owner=User.objects.get(username=receiver))
+                    for filter in filters:
+                        if str(filter.filter_by) in email.subject or str(filter.filter_by) in email.text\
+                                or str(filter.filter_by) in email.sender.username:
+                            email.filter.add(filter)
+                    EmailFolder(user=User.objects.get(username=receiver), email=email).save()
+
+                for receiver in cc_list:
+                    filters = Filter.objects.filter(owner=User.objects.get(username=receiver))
+                    for filter in filters:
+                        if str(filter.filter_by) in email.subject or str(filter.filter_by) in email.text \
+                                or str(filter.filter_by) in email.sender.username:
+                            email.filter.add(filter)
+                    EmailFolder(user=User.objects.get(username=receiver), email=email).save()
+
+                for receiver in bcc_list:
+                    filters = Filter.objects.filter(owner=User.objects.get(username=receiver))
+                    for filter in filters:
+                        if str(filter.filter_by) in email.subject or str(filter.filter_by) in email.text \
+                                or str(filter.filter_by) in email.sender.username:
+                            email.filter.add(filter)
+                    EmailFolder(user=User.objects.get(username=receiver), email=email).save()
+
+                messages.add_message(request, messages.SUCCESS,
+                                     f'email sent successfully. 😊👌')
                 return redirect('/')
-            return HttpResponse(f"'not saved', {form.errors}")
+
+        messages.error(request, form.errors)
+        return redirect('/')
 
 
 class DisplayAllEmail(LoginRequiredMixin, View):
 
     def get(self, request):
-        emails = Email.objects.all().filter(
-            Q(sender=request.user.id) | Q(receiver_to=request.user.id)
-            | Q(receiver_cc=request.user.id) | Q(receiver_bcc=request.user.id)).distinct()
+
+        # query for display emails 👇
+        emails = Email.objects.all().filter((Q(sender=request.user.id) | Q(receiver_to=request.user.id)
+                                             | Q(receiver_cc=request.user.id) | Q(receiver_bcc=request.user.id)
+                                             )).distinct()
+
+        for e in emails:
+            email_folder = EmailFolder.objects.filter(email=e.pk, user=request.user.pk)
+            for i in email_folder:
+                if i.is_trash is True or i.is_archive is True or i.is_draft is True:
+                    emails = emails.exclude(pk=e.pk)
+
+        # query message for receiver 👇
+        emails_ = Email.objects.all().filter(Q(receiver_to=request.user) | Q(receiver_cc=request.user)
+                                             | Q(receiver_bcc=request.user))
+
+        for email in emails_:
+            if request.user.last_login <= email.created <= timezone.now():
+                messages.add_message(request, messages.SUCCESS,
+                                     f'An email was sent to you by {email.sender} on the {email.created}'
+                                     f'with subject --> {email.subject}')
 
         return render(request, 'web_page/email_list.html', {'emails': emails})
 
@@ -103,11 +174,20 @@ class DisplayAllEmail(LoginRequiredMixin, View):
 class DisplayDetailEmail(LoginRequiredMixin, DetailView):
     model = Email
 
-    def post(self, request, pk):
-        email = Email.objects.get(id=pk)
-        email.is_trash = True
-        email.save()
-        return redirect('/')
+    def get_context_data(self, **kwargs):
+        context = super(DisplayDetailEmail, self).get_context_data(**kwargs)
+        if context['object'].label:
+            context['labels'] = list(
+                context['object'].label.filter(user_id=self.request.user.pk))
+
+        places = list(EmailFolder.objects.filter(email=context['object'].pk,
+                                                 user_id=self.request.user.pk))
+        context['places'] = places
+
+        if context['object'].filter:
+            context['filters'] = list(context['object'].filter.filter(owner_id=self.request.user.pk))
+
+        return context
 
 
 class EmailDelete(LoginRequiredMixin, DeleteView):
@@ -115,22 +195,13 @@ class EmailDelete(LoginRequiredMixin, DeleteView):
     success_url = '/'
 
 
-class UpdateEmail(UpdateView):
-    model = Email
-    template_name = 'web_page/edite_email.html'
-    fields = ['is_trash', 'is_starred', 'is_draft']
-    success_url = '/'
-
-
 class AddLabel(View):
 
     def get(self, request, pk):
-
         query = Label.objects.filter(user=request.user).values_list('title', flat=True)
         return render(request, 'web_page/add_label_to_email.html', {'query': list(query)})
 
     def post(self, request, pk):
-
         print(request.POST)
         label = request.POST.getlist('selected_label')
         email = Email.objects.get(id=pk)
@@ -158,8 +229,15 @@ class ReplyEmail(LoginRequiredMixin, View):
             email_object.email_obj = email
             email_object.save()
             email_object.receiver_to.add(email.sender.id)
-            return redirect(f'/web_page/email-detail/{pk}')
-        return HttpResponse('ok nashod')
+
+            EmailFolder(user=email.sender, email=email_object).save()
+            EmailFolder(user=replier, email=email_object).save()
+
+            messages.add_message(request, messages.SUCCESS,
+                                 f'email replayed. 😊👌')
+
+            return redirect('/')
+        return HttpResponse('🤔')
 
 
 class Forward(LoginRequiredMixin, View):
@@ -172,6 +250,7 @@ class Forward(LoginRequiredMixin, View):
                       {'contacts': list(contacts), 'email': email})
 
     def post(self, request, pk):
+
         forwarder = request.user
         email = Email.objects.get(id=pk)
         receiver_to = request.POST["to"]
@@ -207,6 +286,17 @@ class Forward(LoginRequiredMixin, View):
         email_forwarded.receiver_cc.add(*list_id_cc)
         email_forwarded.receiver_bcc.add(*list_id_bcc)
 
+        EmailFolder(user=forwarder, email=email_forwarded).save()
+
+        for receiver in to_list:
+            EmailFolder(user=User.objects.get(username=receiver), email=email_forwarded).save()
+        for receiver in cc_list:
+            EmailFolder(user=User.objects.get(username=receiver), email=email_forwarded).save()
+        for receiver in bcc_list:
+            EmailFolder(user=User.objects.get(username=receiver), email=email_forwarded).save()
+
+        messages.add_message(request, messages.SUCCESS,
+                             f'email Forwarded. 😊👌')
         return redirect('/')
 
 
@@ -220,8 +310,11 @@ class SendDraft(LoginRequiredMixin, View):
                       {'contacts': list(contacts), 'email': email})
 
     def post(self, request, pk):
+
         forwarder = request.user
+
         email = Email.objects.get(id=pk)
+
         receiver_to = request.POST["to"]
         receiver_cc = request.POST["cc"]
         receiver_bcc = request.POST["bcc"]
@@ -244,16 +337,24 @@ class SendDraft(LoginRequiredMixin, View):
         list_id_cc = [User.objects.get(username=i).id for i in cc_list]
         list_id_bcc = [User.objects.get(username=i).id for i in bcc_list]
 
-        email_ = Email(subject=email.subject,
-                       text=email.text,
-                       sender=forwarder)
-
-        email_.save()
-
         # Recipients are added to the email object one by one based on their ideas 👇
-        email_.receiver_to.add(*list_id_to)
-        email_.receiver_cc.add(*list_id_cc)
-        email_.receiver_bcc.add(*list_id_bcc)
+        email.receiver_to.add(*list_id_to)
+        email.receiver_cc.add(*list_id_cc)
+        email.receiver_bcc.add(*list_id_bcc)
+
+        place = EmailFolder.objects.get(email=email.pk, user=request.user)
+        place.is_draft = False
+        place.save(update_fields=['is_draft'])
+
+        for receiver in to_list:
+            EmailFolder(user=User.objects.get(username=receiver), email=email).save()
+        for receiver in cc_list:
+            EmailFolder(user=User.objects.get(username=receiver), email=email).save()
+        for receiver in bcc_list:
+            EmailFolder(user=User.objects.get(username=receiver), email=email).save()
+
+        messages.add_message(request, messages.SUCCESS,
+                             f'email sent successfully. 😊👌')
 
         return redirect('/')
 
@@ -307,6 +408,28 @@ class UpdateContact(LoginRequiredMixin, UpdateView):
     template_name = 'web_page/edite_contact.html'
     fields = ['first_name', 'last_name', 'email', 'phone_number', 'birthday', 'other_email']
     success_url = '/'
+
+
+class SearchContacts(LoginRequiredMixin, View):
+
+    def get(self, request):
+        contacts = ProfileContact.objects.all().filter(user=request.user).values_list('first_name', 'last_name',
+                                                                                      'email', 'phone_number',
+                                                                                      'other_email')
+
+        contacts_list = list(itertools.chain(*list(contacts)))
+        res = [i for i in contacts_list if i]
+
+        return render(request, 'web_page/search_contacts.html', {'res': res})
+
+    def post(self, request):
+        contact = request.POST['contact']
+        result = ProfileContact.objects.all().filter(Q(user=request.user) & (
+                Q(first_name__startswith=contact) | Q(last_name__startswith=contact) |
+                Q(email__startswith=contact) | Q(phone_number__startswith=contact)
+                | Q(other_email__startswith=contact)))
+
+        return render(request, 'web_page/contacts_result.html', {'result': result})
 
 
 # <------ start Label section ------>
@@ -363,7 +486,7 @@ class SearchByLabel(LoginRequiredMixin, View):
 """
 <------ start Categories section ------>
 
-   Sent  Draft Archive Trash
+   Sent Draft Archive Trash
 """
 
 
@@ -371,15 +494,42 @@ class SentBox(LoginRequiredMixin, View):
 
     def get(self, request):
         emails = Email.objects.filter(sender=request.user.id).distinct()
+
+        for e in emails:
+            email_folder = EmailFolder.objects.filter(email=e.pk, user=request.user.pk)
+            for i in email_folder:
+                if i.is_trash or i.is_draft is True:
+                    emails = emails.exclude(pk=e.pk)
+
         return render(request, 'web_page/sentbox.html', {'emails': emails})
 
 
 class Inbox(LoginRequiredMixin, View):
 
     def get(self, request):
+
         emails_to = Email.objects.filter(receiver_to=request.user.id).distinct()
+        for e in emails_to:
+            email_folder = EmailFolder.objects.filter(email=e.pk, user=request.user.pk)
+            for i in email_folder:
+
+                if i.is_trash is True or i.is_draft is True or i.is_archive is True:
+                    emails_to = emails_to.exclude(pk=e.pk)
+
         emails_cc = Email.objects.filter(receiver_cc=request.user.id).distinct()
+        for e in emails_to:
+            email_folder = EmailFolder.objects.filter(email=e.pk, user=request.user.pk)
+            for i in email_folder:
+                if i.is_trash is True or i.is_draft is True or i.is_archive is True:
+                    emails_cc = emails_cc.exclude(pk=e.pk)
+
         emails_bcc = Email.objects.filter(receiver_bcc=request.user.id).distinct()
+        for e in emails_to:
+            email_folder = EmailFolder.objects.filter(email=e.pk, user=request.user.pk)
+            for i in email_folder:
+                if i.is_trash is True or i.is_draft is True or i.is_archive is True:
+                    emails_bcc = emails_bcc.exclude(pk=e.pk)
+
         return render(request, 'web_page/inbox.html', {'emails_to': emails_to,
                                                        'emails_cc': emails_cc,
                                                        'emails_bcc': emails_bcc})
@@ -388,35 +538,169 @@ class Inbox(LoginRequiredMixin, View):
 class Draft(LoginRequiredMixin, View):
 
     def get(self, request):
-        emails_drafted = Email.objects.filter((Q(is_draft=True) & Q(sender=request.user.id)) |
-                                              (Q(is_draft=True) & Q(receiver_bcc=request.user.id)) |
-                                              (Q(is_draft=True) & Q(receiver_cc=request.user.id)) |
-                                              (Q(is_draft=True) & Q(receiver_to=request.user.id))).distinct()
-
-        return render(request, 'web_page/draft.html', {'emails_drafted': emails_drafted})
+        emails = Email.objects.filter(sender=request.user.pk, receiver_cc=None, receiver_bcc=None, receiver_to=None)
+        for e in emails:
+            email_folder = EmailFolder.objects.filter(email=e.pk, user=request.user.pk)
+            for i in email_folder:
+                if i.is_draft is False or i.is_archive is True or i.is_trash is True:
+                    emails = emails.exclude(pk=e.pk)
+        return render(request, 'web_page/draft.html', {'emails_drafted': emails})
 
 
 class Archive(LoginRequiredMixin, View):
 
     def get(self, request):
-        emails_archived = Email.objects.filter((Q(is_starred=True) & Q(sender=request.user.id)) |
-                                               (Q(is_starred=True) & Q(receiver_bcc=request.user.id)) |
-                                               (Q(is_starred=True) & Q(receiver_cc=request.user.id)) |
-                                               (Q(is_starred=True) & Q(receiver_to=request.user.id))).distinct()
-
-        return render(request, 'web_page/archive.html', {'emails_archived': emails_archived})
+        emails = Email.objects.filter(Q(sender=request.user.pk) | Q(receiver_bcc=request.user.pk) |
+                                      Q(receiver_cc=request.user.pk) | Q(receiver_to=request.user.pk))
+        for e in emails:
+            email_folder = EmailFolder.objects.filter(email=e.pk, user=request.user.pk)
+            for i in email_folder:
+                if i.is_trash is True or i.is_archive is False:
+                    emails = emails.exclude(pk=e.pk)
+        return render(request, 'web_page/archive.html', {'emails_archived': emails})
 
 
 class Trash(LoginRequiredMixin, View):
 
     def get(self, request):
-        emails_trashed = Email.objects.filter((Q(is_trash=True) & Q(sender=request.user.id)) |
-                                              (Q(is_trash=True) & Q(receiver_to=request.user.id)) |
-                                              (Q(is_trash=True) & Q(receiver_cc=request.user.id)) |
-                                              (Q(is_trash=True) & Q(receiver_bcc=request.user.id))).distinct()
+        emails = Email.objects.filter(Q(sender=request.user.pk) | Q(receiver_bcc=request.user.pk) |
+                                      Q(receiver_cc=request.user.pk) | Q(receiver_to=request.user.pk))
+        for e in emails:
+            email_folder = EmailFolder.objects.filter(email=e.pk, user=request.user.pk)
+            for i in email_folder:
+                if i.is_trash is False:
+                    emails = emails.exclude(pk=e.pk)
+        return render(request, 'web_page/trash.html', {'emails_trashed': emails})
 
-        return render(request, 'web_page/trash.html', {'emails_trashed': emails_trashed})
 
-# <------ END Categories section 😊 ------>
+@login_required(redirect_field_name='login')
+def check_archive(request, pk):
+    if request.method == "GET":
+        email = Email.objects.get(pk=pk)
+        places = EmailFolder.objects.filter(user=request.user.pk, email=email.pk)
+        for place in places:
+            if place.is_archive is False:
+                place.is_archive = True
+            elif place.is_archive is True:
+                place.is_archive = False
+            place.save(update_fields=['is_archive'])
+        return redirect('archive')
 
-# todo: redirect login be home
+
+@login_required(redirect_field_name='login')
+def check_trash(request, pk):
+    if request.method == "GET":
+        email = Email.objects.get(pk=pk)
+        places = EmailFolder.objects.filter(user=request.user.pk, email=email.pk)
+        for place in places:
+            if place.is_trash is False:
+                place.is_trash = True
+                place.is_draft = False
+            elif place.is_trash is True:
+                place.is_trash = False
+            place.save(update_fields=['is_trash'])
+        return redirect('trash')
+
+
+#  <---------- Signature ----------->
+
+
+class CreateSignature(LoginRequiredMixin, View):
+
+    def get(self, request):
+        form = SignatureModelForm()
+        return render(request, 'web_page/create_signature.html', {"form": form})
+
+    def post(self, request):
+        form = SignatureModelForm(request.POST, request.FILES)
+        if form.is_valid():
+            signature_obj = Signature(text=form.cleaned_data['text'],
+                                      user=request.user)
+            signature_obj.save()
+            return HttpResponse('this signature created')
+
+
+class SignatureList(LoginRequiredMixin, View):
+    def get(self, request):
+        signatures = Signature.objects.all().filter(user=request.user)
+        return render(request, 'web_page/signature_list.html', {'signatures': signatures})
+
+
+class SignatureDetail(LoginRequiredMixin, DetailView):
+    model = Signature
+
+
+def exportcsv(request):  # Download List Contacts ---> Csv
+    contacts = ProfileContact.objects.all().filter(user=request.user)
+    response = HttpResponse('')
+    response['Content-Disposition'] = 'attachment; filename=contacts.csv'
+    writer = csv.writer(response)
+    writer.writerow(['first_name', 'last_name', 'email', 'other_email', 'phone_number', 'birthday'])
+    contacts = contacts.values_list('first_name', 'last_name', 'email', 'other_email', 'phone_number', 'birthday')
+    for contact in contacts:
+        writer.writerow(contact)
+    return response
+
+
+@login_required
+def search_content_email(req):
+    if req.method == 'POST':
+        text = req.POST.get('text')
+        if not text:
+            json_data = json.loads(req.body)
+            text = json_data['text']
+
+        email = Email.objects.filter(subject__contains=text)
+        email_list = email.values_list('subject', 'text')
+        email_lst = list(itertools.chain(*email_list))
+        emails = [i for i in email_lst if i]
+        if email:
+            return JsonResponse({
+                'emails': emails
+            })
+        else:
+            return JsonResponse({
+                'emails': [],
+                'msg': "doesn't match any emails",
+            })
+    else:
+        return render(req, 'web_page/search_content_email_box.html', {})
+
+
+class FilterEmail(LoginRequiredMixin, View):
+
+    def get(self, request):
+        return render(request, 'web_page/filter_email.html', {})
+
+    def post(self, request):
+
+        if 'sender' in request.POST:
+            search_input = request.POST['sender']
+            users = User.objects.all().values_list('username', flat=True)
+            users_list = [i for i in users]
+            if search_input in users_list:
+                query = Email.objects.filter(
+                    Q(sender=User.objects.get(username=search_input)) & (Q(receiver_to=request.user) |
+                                                                         Q(receiver_cc=request.user) |
+                                                                         Q(receiver_bcc=request.user)))
+
+                filter_ = Filter(title=request.POST['filter_name'], filter_by=search_input, owner=request.user)
+                filter_.save()
+                for i in query:
+                    i.filter.add(filter_.id)
+
+                return render(request, 'web_page/emails_filterd.html', {'query': list(query)})
+
+        if 'word' in request.POST:
+            search_input = request.POST['word']
+            query = Email.objects.filter(Q(subject__contains=search_input) | Q(text__contains=search_input) &
+                                         (Q(receiver_to=request.user) |
+                                          Q(receiver_cc=request.user) |
+                                          Q(receiver_bcc=request.user)))
+
+            filter_ = Filter(title=request.POST['filter_name'], filter_by=search_input, owner=request.user)
+            filter_.save()
+            for i in query:
+                i.filter.add(filter_.id)
+
+            return render(request, 'web_page/emails_filterd.html', {'query': list(query)})

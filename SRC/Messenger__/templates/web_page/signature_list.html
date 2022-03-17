@@ -1,0 +1,9 @@
+{% extends 'web_page/layout/_base.html' %}
+{% block title %}AllMail{% endblock %}
+{% block body %}
+    <section >
+        {% for signature in signatures %}
+        <div style="margin: 20px"><a href="/web_page/signature-detail/{{ signature.pk }}">{{ signature.text }}</a></div>
+    {% endfor %}
+    </section>
+{% endblock body %}

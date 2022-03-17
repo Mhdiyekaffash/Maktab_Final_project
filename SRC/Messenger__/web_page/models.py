@@ -19,6 +19,12 @@ class Label(models.Model):
         return self.title
 
 
+class Filter(models.Model):
+    title = models.CharField(max_length=50)
+    filter_by = models.CharField(max_length=100, null=True, blank=True)  # todo: null=False
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+
+
 class ProfileContact(models.Model):
     first_name = models.CharField(max_length=30, null=False)
     last_name = models.CharField(max_length=30, null=False)
@@ -41,7 +47,11 @@ class Signature(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     text = models.CharField(max_length=20, null=False)
     photo = models.ImageField(upload_to='media', null=True, blank=True)
+
     # This photo can be used as a stamp for a signature
+
+    def __str__(self):
+        return self.text
 
 
 class Email(models.Model):
@@ -60,12 +70,21 @@ class Email(models.Model):
     is_trash = models.BooleanField(default=False)
     is_read = models.BooleanField(default=False)
     email_obj = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
-    # az in field baraye replay estefade mishavad ☝
+    # This field is used for replay ☝
     sign = models.ForeignKey(Signature, on_delete=models.SET_NULL, null=True, blank=True)
     sender = models.ForeignKey(User, on_delete=models.PROTECT, null=True, related_name='sender', blank=True)
-
-    # if user ya reciver hazf shodan email hazf nashvad va etelate marboot be user baraye emeil hefz shavad
-    # if sign ya lable hazf shavad fild marboote null shavad
+    filter = models.ManyToManyField(Filter, related_name='filters', blank=True)
 
     def __str__(self):
-        return self.text
+        return str(self.subject)
+
+
+class EmailFolder(models.Model):
+    email = models.ForeignKey(Email, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_trash = models.BooleanField(default=False)
+    is_archive = models.BooleanField(default=False)
+    is_draft = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.email)

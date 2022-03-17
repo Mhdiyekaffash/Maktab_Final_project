@@ -1,11 +1,11 @@
 from django import forms
-from .models import Email, Label, ProfileContact
+from .models import Email, Label, ProfileContact, Signature
 
 
 class CreateEmailForm(forms.ModelForm):
     class Meta:
         model = Email
-        fields = ['subject', 'text', 'file', 'sign', 'is_draft']
+        fields = ['subject', 'text', 'file', 'sign']
 
 
 class EmailDetailForm(forms.ModelForm):
@@ -32,3 +32,9 @@ class CreateLabelForm(forms.ModelForm):
     class Meta:
         model = Label
         fields = ['title']
+
+
+class SignatureModelForm(forms.ModelForm):
+    class Meta:
+        model = Signature
+        fields = ('text',)

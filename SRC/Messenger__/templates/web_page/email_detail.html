@@ -235,7 +235,7 @@
                     <main class="message">
 
                         <div class="details">
-                            <div class="title">
+                            <div class="title"> Subject :
                                 {{ object.subject }}
                             </div>
                             <div class="header">
@@ -248,7 +248,7 @@
                                 <div class="date"></b>{{ object.created }}</div>
                             </div>
                             <div class="content">
-                                <p>
+                                <p> Text : <br>
                                     {{ object.text }}
                                 </p>
 
@@ -270,11 +270,12 @@
                                         </p>
                                     {% endfor %}
                                 </div>
+
                                 <hr style="color: #0c5460">
                                 <div>receiver bcc:
                                     {% for receiver in object.receiver_bcc.all %}
                                         <p style="color: mediumslateblue">
-                                            {% if user.get_username == receiver.username %}
+                                            {% if user.get_username == receiver.username or user.get_username == object.sender.username %}
                                                 {{ receiver.username }}
                                             {% endif %}
                                         </p>
@@ -283,33 +284,36 @@
 
                                 <hr style="color: #17a2b8">
 
-                                <h5 style="color: #0f6674">Labels</h5>
-                                <p></p>
-                                {% for label in object.label.values %}
-                                    <p style="color: darkolivegreen"><a
-                                            href="/web_page/label-Detail/{{ label.slug }}">{{ label.title }}</a></p>
+                                <p>labels:</p>
+                                {% for label in labels %}
+                                    <li><a href="/mail/labels/{{ label.slug }}">{{ label.title }}</a></li>
                                 {% endfor %}
+                                <h5 style="color: #0f6674">filters</h5>
 
+                                <p>filters:</p>
+                                {% for filter in filters %}
+                                    <li><a href="#">{{ filter.title }}</a></li>
+                                {% endfor %}
                                 <hr style="color: #0c5460">
-                                {% if object.is_draft %}
-                                    <p>drafted : {{ object.is_draft }}</p>
+                                {% if object.signature %}
+                                    <div>signature:<a
+                                            href="{% url 'signature-detail' object.signature.pk %}">{{ object.signature }}</a>
+                                    </div>
                                 {% endif %}
-                                {% if object.is_starred %}
-                                    <p>starred : {{ object.is_starred }}</p>
-                                {% endif %}
-                                {% if object.is_trash %}
-                                    <p>trashed : {{ object.is_trash }}</p>
-                                {% endif %}
+
 
                                 <hr style="color: #0c5460">
 
                                 <div>
-                                    {% if object.is_draft %}
-                                        <button><a href="{% url 'send-from-draft' object.pk %}">send draft email</a>
-                                        </button>
-                                    {% endif %}
+                                    {% for i in places %}
+                                        {% if i.is_draft %}
+                                            <button><a href="{% url 'send-from-draft' email.pk %}">send draft email</a>
+                                            </button>
+                                        {% endif %}
+                                    {% endfor %}
                                 </div>
-                            <hr style="color: #0c5460">
+
+                                <hr style="color: #0c5460">
                                 <div style="margin-left: 500px">
 
                                     <a href="/web_page/email-replay/{{ object.pk }}">
@@ -346,9 +350,26 @@
                                     href="{% url 'email_delete' object.pk %}">Delete
                                 email</a></button>
                         </div>
+
                         <div>
-                            <button class="btn_blue flw_pic"><i class="fa fa-edit"></i><a
-                                    href="{% url 'edit_email' email.pk %}">Edit category
+                            <button class="btn_blue flw_pic">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-archive-fill" viewBox="0 0 16 16">
+                                    <path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15h9.286zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zM.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8H.8z"/>
+                                </svg>
+                                </i><a
+                                    href="{% url 'check-archive' email.pk %}">Archive
+                            </a></button>
+                        </div>
+
+                        <div>
+                            <button class="btn_blue flw_pic">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                    <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+                                </svg>
+                                </i><a
+                                    href="{% url 'check-trash' email.pk %}">Trash
                             </a></button>
                         </div>
 
@@ -365,19 +386,26 @@
                         </div>
 
 
-                        <form method="post" action="">
-                            {% csrf_token %}
-                            <input type="submit" value="Delete">
-                        </form>
+                        {#                        <form method="post" action="">#}
+                        {#                            {% csrf_token %}#}
+                        {#                            <input type="submit" value="Delete">#}
+                        {#                        </form>#}
+
                         <hr style="color: #0c5460">
                         <p style="color: #0f6674">Files</p>
                         {% if object.file %}
                             <a href="/media/{{ object.file }}">{{ object.file }}</a>
                         {% endif %}
+
+                        {#                    <p>Emailfolder</p>#}
+                        {##}
+                        {#                    {% for e in email_folder %}#}
+                        {#                        <p style="color: #491217">{{ e.user }}</p>#}
+                        {#                    {% endfor %}#}
+
+
                     </main>
-                    {#                    <div>#}
-                    {#                        <button>{{ form.label }}</button>#}
-                    {#                    </div>#}
+
                 </div>
 
 

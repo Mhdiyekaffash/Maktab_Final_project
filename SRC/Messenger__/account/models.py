@@ -29,6 +29,6 @@ class User(AbstractUser):
     slug = models.SlugField(max_length=100, unique=True, null=True)
 
     def __str__(self):
-        return self.username
+        return f'{self.last_login} - {self.username}'
 
     objects = UserManager()
