@@ -26,11 +26,11 @@
                                                 class="fa fa-circle text-info m-r-15"></i>{{ email.text|truncatewords:5  }}
                                         </a>
                                     </td>
-                                    {% if email.is_starred %}
-                                        <td>
-                                            <i class="fa fa-paperclip"></i>
-                                        </td>
-                                    {% endif %}
+{#                                    {% if email.is_starred %}#}
+{#                                        <td>#}
+{#                                            <i class="fa fa-paperclip"></i>#}
+{#                                        </td>#}
+{#                                    {% endif %}#}
                                     <td class="text-right">
                                         {{ email.created }}
                                     </td>
@@ -43,7 +43,7 @@
 
                         <div class="row">
                             <div class="col-xs-7">
-                                Showing 1 - 20 of 289
+
                             </div>
 
                             <div class="col-xs-5">

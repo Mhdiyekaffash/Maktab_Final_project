@@ -4,63 +4,81 @@
     <section>
         <div class="panel panel-default m-t-20">
 
-                    <div class="panel-body">
-                        {% for email in emails %}
-                            <table class="table table-hover mails">
-                                <tbody>
-                                <tr>
-                                    <td class="mail-select">
-                                        <label class="cr-styled">
-                                            <input type="checkbox"><i class="fa"></i>
-                                        </label>
-                                    </td>
-                                    <td class="mail-rateing">
-                                        <i class="fa fa-star"></i>
-                                    </td>
-                                    <td>
-                                        <a href="web_page/email-detail/{{ email.pk }}">{{ email.subject|truncatechars:5 }}</a>
-                                    </td>
-                                    <td>
-                                        <a href="web_page/email-detail/{{ email.pk }}"><i
-                                                class="fa fa-circle text-info m-r-15"></i>{{ email.text|truncatechars:5 }}
-                                        </a>
-                                    </td>
-                                    {% if email.is_starred %}
-                                        <td>
-                                            <i class="fa fa-paperclip"></i>
-                                        </td>
-                                    {% endif %}
-                                    <td class="text-right">
-                                        {{ email.created }}
-                                    </td>
-                                </tr>
+            <div class="panel-body">
+                {% for email in emails %}
+                    <table class="table table-hover mails">
+                        <tbody>
+                        <tr>
+                            <td class="mail-select">
+                                <label class="cr-styled">
+                                    <input type="checkbox"><i class="fa"></i>
+                                </label>
+                            </td>
+                            <td class="mail-rateing">
+                                <i class="fa fa-star"></i>
+                            </td>
+                            <td>
+                                <a href="web_page/email-detail/{{ email.pk }}">{{ email.subject|truncatechars:5 }}</a>
+                            </td>
+                            <td>
+                                <a href="web_page/email-detail/{{ email.pk }}"><i
+                                        class="fa fa-circle text-info m-r-15"></i>{{ email.text|truncatechars:5 }}
+                                </a>
+                            </td>
+                            {% if email.is_starred %}
+                                <td>
+                                    <i class="fa fa-paperclip"></i>
+                                </td>
+                            {% endif %}
+                            <td class="text-right">
+                                {{ email.created }}
+                            </td>
+                        </tr>
 
-                                </tbody>
-                            </table>
-                        {% endfor %}
-                        <hr>
+                        </tbody>
+                    </table>
+                {% endfor %}
+                <hr>
 
-                        <div class="row">
-                            <div class="col-xs-7">
-                                Showing 1 - 20 of 289
-                            </div>
+                <div class="row">
+                    <div class="col-xs-7">
 
-                            <div class="col-xs-5">
-                                <div class="btn-group pull-right">
-                                    <button type="button" class="btn btn-default"><i class="fa fa-chevron-left"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-default"><i class="fa fa-chevron-right"></i>
-                                    </button>
-                                </div>
-                            </div>
+                    </div>
 
+                    <div class="col-xs-5">
+                        <div class="btn-group pull-right">
+                            <button type="button" class="btn btn-default"><i class="fa fa-chevron-left"></i>
+                            </button>
+                            <button type="button" class="btn btn-default"><i class="fa fa-chevron-right"></i>
+                            </button>
                         </div>
+                    </div>
 
-                    </div> <!-- panel body -->
+                </div>
 
-                </div> <!-- panel -->
+            </div> <!-- panel body -->
 
-            </div> <!-- end Col-9 -->
+        </div> <!-- panel -->
+        <div>
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+                        class="error"
+                    {% elif message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                        class="warn"
+                    {% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                        class="success"
+                    {% endif %}>
+                        {{ message }}
+                    </p>
+
+                {% endfor %}
+            {% endif %}
+        </div>
+
+
+        </div> <!-- end Col-9 -->
+
         </div>
     </section>
 {% endblock %}

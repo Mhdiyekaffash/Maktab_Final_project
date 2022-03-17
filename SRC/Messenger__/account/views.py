@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.http import HttpResponse
 from django.urls import reverse_lazy
@@ -62,12 +63,7 @@ class ActivateAccount(View):
             user.is_active = True
             user.username += '@gmail.com'
             user.save()
-            # login(request, user)
             messages.success(request, ('Your account have been confirmed.'))
-            #     return redirect('/registration/home.html')
-            # else:
-            #     messages.warning(request, ('The confirmation link was invalid, possibly because it has already been used.'))
-            #     return redirect('/registration/home.html')
             return HttpResponse('اکانت شما با موفقیت فعال شد. برای ورود <a href="/login">کلیک</a> کنید.')
         else:
             return HttpResponse('لینک فعال سازی منقضی شده است. <a href="/registration">دوباره امتحان کنید.</a>')
@@ -113,5 +109,5 @@ def Profile(View):
 
 
 # @login_required  # if user attentication bood in view namayesh dade mishe
-def home(request):
+def home( request):
     return HttpResponse("tamaaaaaaam tammmaaaaaaaaaaaaaam :) !")

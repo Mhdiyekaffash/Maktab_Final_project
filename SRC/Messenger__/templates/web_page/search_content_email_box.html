@@ -1,0 +1,33 @@
+{% extends 'web_page/layout/_base.html' %}
+{% block title %}Search{% endblock %}
+{% load static %}
+{% block body %}
+
+
+
+<form method="POST">
+    {% csrf_token %}
+    <input style="margin-top: 30px" id="in_text" type="text" name="text" class="test-class">
+    <a href="{% url 'search_email' %}"></a>
+</form>
+
+<hr>
+
+<ul id="mu_ul">
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+</ul>
+{% block script %}
+<script>
+    var CSRF_TOKEN = '{{ csrf_token }}';
+    var URL = "{% url 'search_email' %}"
+    var URL2 = "{% url 'home' %}"
+
+</script>
+<script src={% static '/js/search_email.js' %}></script>
+{% endblock script %}
+{% endblock body %}
+
+

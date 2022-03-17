@@ -50,6 +50,16 @@
                         <li><a href="#fakelink">Dropdown link</a></li>
                     </ul>
                 </div>
+                <div>
+                    <a href="{% url 'CreateLabel' %}">
+                    <svg style=" color: #1e7e34; width: 25px; height: 40px; margin-right: 5px "
+                            xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                         class="bi bi-bookmark-plus" viewBox="0 0 16 16">
+                        <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+                        <path d="M8 4a.5.5 0 0 1 .5.5V6H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V7H6a.5.5 0 0 1 0-1h1.5V4.5A.5.5 0 0 1 8 4z"/>
+                    </svg>
+                    </a>
+                </div>
                 <form method="post">{% csrf_token %}
                     <div class="input-group autocomplete" style="margin-right: 10px" class="">
                         <input type="search" class="form-control rounded" placeholder="Search"
@@ -61,7 +71,7 @@
 
                 <div>
                     <a href="/web_page/ContactList/">
-                        <svg style="margin-left: 260px;margin-top: 10px ;width: 25px; height: 25px; color: #1e7e34"
+                        <svg style="margin-left: 220px;margin-top: 10px ;width: 25px; height: 25px; color: #1e7e34"
                              xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                              class="bi bi-person-lines-fill" viewBox="0 0 16 16">
                             <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2z"/>
@@ -77,12 +87,12 @@
                         </svg>
                     </a>
                     <a href="/account/logout/">
-                      <svg style="margin-left: 30px;margin-top: 10px ;width: 25px; height: 25px; color: #1e7e34"
-                            xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                         class="bi bi-door-closed" viewBox="0 0 16 16">
-                        <path d="M3 2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V2zm1 13h8V2H4v13z"/>
-                        <path d="M9 9a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"/>
-                    </svg>
+                        <svg style="margin-left: 30px;margin-top: 10px ;width: 25px; height: 25px; color: #1e7e34"
+                             xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                             class="bi bi-door-closed" viewBox="0 0 16 16">
+                            <path d="M3 2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V2zm1 13h8V2H4v13z"/>
+                            <path d="M9 9a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"/>
+                        </svg>
                     </a>
                 </div>
             </div>

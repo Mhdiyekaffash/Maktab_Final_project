@@ -1,0 +1,9 @@
+{% extends 'web_page/layout/_base.html' %}
+{% block title %}AllMail{% endblock %}
+{% block body %}
+
+    {{ object.text }}<br>
+    {{ object.user.username }}<br>
+    {{ object.pk }}
+
+{% endblock body %}
