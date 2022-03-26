@@ -1,5 +1,5 @@
 {% extends 'web_page/layout/_base.html' %}
-{% block title %}Inbox{% endblock %}
+{% block title %}Email Detail{% endblock %}
 {% block body %}
     <section>
         <!DOCTYPE html>
@@ -242,6 +242,7 @@
                                 <img class="avatar" src="https://bootdey.com/img/Content/avatar/avatar3.png"
                                      alt="avatar">
                                 <div class="from">
+
                                     <span>sender : {{ object.sender }}</span>
                                     {{ object.sender.email }}
                                 </div>
@@ -286,7 +287,7 @@
 
                                 <p>labels:</p>
                                 {% for label in labels %}
-                                    <li><a href="/mail/labels/{{ label.slug }}">{{ label.title }}</a></li>
+                                    <li><a href="/web_page/label-Detail/{{ label.slug }}">{{ label.title }}</a></li>
                                 {% endfor %}
                                 <h5 style="color: #0f6674">filters</h5>
 
@@ -295,9 +296,9 @@
                                     <li><a href="#">{{ filter.title }}</a></li>
                                 {% endfor %}
                                 <hr style="color: #0c5460">
-                                {% if object.signature %}
-                                    <div>signature:<a
-                                            href="{% url 'signature-detail' object.signature.pk %}">{{ object.signature }}</a>
+                                {% if object.sign %}
+                                    <div>signature:
+                                        <a href="{% url 'signature-detail' object.sign.pk %}">f{{ object.sign }}</a>
                                     </div>
                                 {% endif %}
 
@@ -338,7 +339,8 @@
                                 <div>
                                     <p>Replayed messages</p>
                                     {% if object.email_obj %}
-                                        {{ object.email_obj.text }}
+                                        <a href="/web_page/email-detail/{{ object.pk }}">{{ object.email_obj.text }}</a>
+
                                     {% endif %}
                                 </div>
 
@@ -385,24 +387,11 @@
                                 </a></button>
                         </div>
 
-
-                        {#                        <form method="post" action="">#}
-                        {#                            {% csrf_token %}#}
-                        {#                            <input type="submit" value="Delete">#}
-                        {#                        </form>#}
-
                         <hr style="color: #0c5460">
                         <p style="color: #0f6674">Files</p>
                         {% if object.file %}
                             <a href="/media/{{ object.file }}">{{ object.file }}</a>
                         {% endif %}
-
-                        {#                    <p>Emailfolder</p>#}
-                        {##}
-                        {#                    {% for e in email_folder %}#}
-                        {#                        <p style="color: #491217">{{ e.user }}</p>#}
-                        {#                    {% endfor %}#}
-
 
                     </main>
 

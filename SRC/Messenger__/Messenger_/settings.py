@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'crispy_forms',
     'dbbackup',
-
+    'rest_framework',
 ]
 
 DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
@@ -179,3 +179,12 @@ DBBACKUP_CONNECTORS = {
 
     }
 }
+
+# REST_FRAMEWORK = {
+#    'DEFAULT_AUTHENTICATION_CLASSES': (
+#        'rest_framework.authentication.TokenAuthentication',
+#    ),
+#    'DEFAULT_PERMISSION_CLASSES': (
+#         'rest_framework.permissions.IsAdminUser'
+#    ),
+# }

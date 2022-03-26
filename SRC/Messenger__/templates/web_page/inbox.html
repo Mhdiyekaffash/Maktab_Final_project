@@ -19,18 +19,18 @@
                                         <i class="fa fa-star"></i>
                                     </td>
                                     <td>
-                                        <a href="/web_page/email-detail/{{ email_to.pk }}">{{ email_to}}</a>
+                                        <a href="/web_page/email-detail/{{ email_to.pk }}">{{ email_to.subject|truncatechars:5}}</a>
                                     </td>
                                     <td>
                                         <a href="/web_page/email-detail/{{ email_to.pk }}"><i
-                                                class="fa fa-circle text-info m-r-15"></i>{{ email_to.text|truncatewords:5  }}
+                                                class="fa fa-circle text-info m-r-15"></i>{{ email_to.text|truncatechars:5  }}
                                         </a>
                                     </td>
-                                    {% if email.is_starred %}
-                                        <td>
-                                            <i class="fa fa-paperclip"></i>
-                                        </td>
-                                    {% endif %}
+{#                                    {% if email.is_starred %}#}
+{#                                        <td>#}
+{#                                            <i class="fa fa-paperclip"></i>#}
+{#                                        </td>#}
+{#                                    {% endif %}#}
                                     <td class="text-right">
                                         {{ email.created }}
                                     </td>
@@ -42,7 +42,7 @@
                         <hr>
                     <h3 style="color: #0f6674"> Cc:</h3>
                         {% for email_cc in emails_cc %}
-                            {% if email_to.is_trash == Fulse %}
+{#                            {% if email_to.is_trash == Fulse %}#}
                             <table class="table table-hover mails">
                                 <tbody>
 
@@ -56,55 +56,17 @@
                                         <i class="fa fa-star"></i>
                                     </td>
                                     <td>
-                                        <a href="/web_page/email-detail/{{ email_cc.pk }}">{{ email_cc.subject}}</a>
+                                        <a href="/web_page/email-detail/{{ email_cc.pk }}">{{ email_cc.subject|truncatechars:5 }}</a>
                                     </td>
                                     <td>
                                         <a href="/web_page/email-detail/{{ email_cc.pk }}"><i
-                                                class="fa fa-circle text-info m-r-15"></i>{{ email_cc.text|truncatewords:5  }}
-                                        </a>
-                                    </td>
-                                    {% if email.is_starred %}
-                                        <td>
-                                            <i class="fa fa-paperclip"></i>
-                                        </td>
-                                    {% endif %}
-                                    <td class="text-right">
-                                        {{ email.created }}
-                                    </td>
-                                </tr>
-
-                                </tbody>
-                            </table>
-                            {% endif %}
-                        {% endfor %}
-                        <hr>
-                    <h3 style="color: #0f6674"> Bcc:</h3>
-                        {% for email_bcc in emails_bcc %}
-                            {% if email_to.is_trash == Fulse %}
-                            <table class="table table-hover mails">
-
-                                <tbody>
-                                <tr>
-                                    <td class="mail-select">
-                                        <label class="cr-styled">
-                                            <input type="checkbox"><i class="fa"></i>
-                                        </label>
-                                    </td>
-                                    <td class="mail-rateing">
-                                        <i class="fa fa-star"></i>
-                                    </td>
-                                    <td>
-                                        <a href="/web_page/email-detail/{{ email_bcc.pk }}">{{ email_bcc.subject}}</a>
-                                    </td>
-                                    <td>
-                                        <a href="/web_page/email-detail/{{ email_bcc.pk }}"><i
-                                                class="fa fa-circle text-info m-r-15"></i>{{ email_bcc.text|truncatewords:5  }}
+                                                class="fa fa-circle text-info m-r-15"></i>{{ email_cc.text|truncatechars:5  }}
                                         </a>
                                     </td>
 {#                                    {% if email.is_starred %}#}
-                                    <td>
-                                        <i class="fa fa-paperclip"></i>
-                                    </td>
+{#                                        <td>#}
+{#                                            <i class="fa fa-paperclip"></i>#}
+{#                                        </td>#}
 {#                                    {% endif %}#}
                                     <td class="text-right">
                                         {{ email.created }}
@@ -113,7 +75,45 @@
 
                                 </tbody>
                             </table>
-                            {% endif %}
+{#                            {% endif %}#}
+                        {% endfor %}
+                        <hr>
+                    <h3 style="color: #0f6674"> Bcc:</h3>
+                        {% for email_bcc in emails_bcc %}
+{#                            {% if email_to.is_trash == Fulse %}#}
+                            <table class="table table-hover mails">
+
+                                <tbody>
+                                <tr>
+                                    <td class="mail-select">
+                                        <label class="cr-styled">
+                                            <input type="checkbox"><i class="fa"></i>
+                                        </label>
+                                    </td>
+                                    <td class="mail-rateing">
+                                        <i class="fa fa-star"></i>
+                                    </td>
+                                    <td>
+                                        <a href="/web_page/email-detail/{{ email_bcc.pk }}">{{ email_bcc.subject|truncatechars:5 }}</a>
+                                    </td>
+                                    <td>
+                                        <a href="/web_page/email-detail/{{ email_bcc.pk }}"><i
+                                                class="fa fa-circle text-info m-r-15"></i>{{ email_bcc.text|truncatechars:5  }}
+                                        </a>
+                                    </td>
+{#                                    {% if email.is_starred %}#}
+{#                                    <td>#}
+{#                                        <i class="fa fa-paperclip"></i>#}
+{#                                    </td>#}
+{#                                    {% endif %}#}
+                                    <td class="text-right">
+                                        {{ email.created }}
+                                    </td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+{#                            {% endif %}#}
                         {% endfor %}
                         <hr>
 

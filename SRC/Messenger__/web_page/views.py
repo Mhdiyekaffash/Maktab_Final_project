@@ -14,8 +14,16 @@ from django.views import View
 from django.views.generic import DetailView, DeleteView, UpdateView
 
 from account.models import User
-from .forms import CreateEmailForm, ReplyForm, CreateContactForm, CreateLabelForm, SignatureModelForm
 from .models import Email, ProfileContact, Label, Signature, Filter, EmailFolder
+from .forms import CreateEmailForm, ReplyForm, CreateContactForm, CreateLabelForm, SignatureModelForm
+
+from rest_framework import generics, viewsets
+from rest_framework import status
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import permissions
+from .serializer import ContactSerializer, EmailSerializer
 
 """
 <----- Email section ----->
@@ -114,7 +122,7 @@ class CreateEmail(LoginRequiredMixin, View):
                 for receiver in to_list:
                     filters = Filter.objects.filter(owner=User.objects.get(username=receiver))
                     for filter in filters:
-                        if str(filter.filter_by) in email.subject or str(filter.filter_by) in email.text\
+                        if str(filter.filter_by) in email.subject or str(filter.filter_by) in email.text \
                                 or str(filter.filter_by) in email.sender.username:
                             email.filter.add(filter)
                     EmailFolder(user=User.objects.get(username=receiver), email=email).save()
@@ -359,6 +367,18 @@ class SendDraft(LoginRequiredMixin, View):
         return redirect('/')
 
 
+class EmailsList(APIView):  # Emails List for any User
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        emails = Email.objects.all().filter(Q(sender=request.user) | Q(receiver_bcc=request.user) |
+                                            Q(receiver_cc=request.user) | Q(receiver_to=request.user))
+        x = EmailSerializer(emails, many=True)  # serializer(queryset)
+        return Response({
+            'emails': x.data
+        })
+
+
 # <------ start Contact section ------>
 
 class CreateContact(LoginRequiredMixin, View):
@@ -410,7 +430,7 @@ class UpdateContact(LoginRequiredMixin, UpdateView):
     success_url = '/'
 
 
-class SearchContacts(LoginRequiredMixin, View):
+class SearchContacts(LoginRequiredMixin, View):  # search contact without ajax
 
     def get(self, request):
         contacts = ProfileContact.objects.all().filter(user=request.user).values_list('first_name', 'last_name',
@@ -430,6 +450,45 @@ class SearchContacts(LoginRequiredMixin, View):
                 | Q(other_email__startswith=contact)))
 
         return render(request, 'web_page/contacts_result.html', {'result': result})
+
+
+@login_required  # search contact by ajax
+def search_content_contact(req):
+    if req.method == 'POST':
+        text = req.POST.get('text')
+        if not text:
+            json_data = json.loads(req.body)
+            text = json_data['text']
+
+        contact = ProfileContact.objects.all().filter(Q(user=req.user) & (
+                Q(first_name__contains=text) | Q(last_name__contains=text) |
+                Q(email__contains=text) | Q(phone_number__contains=text, phone_number__isnull=False)
+                | Q(other_email__contains=text, other_email__isnull=False)))
+
+        contact_list = list(contact.values('first_name', 'last_name', 'email', 'pk'))
+
+        if contact:
+            return JsonResponse({
+                'contacts': contact_list,
+            })
+        else:
+            return JsonResponse({
+                'contacts': [],
+                'msg': "doesn't match any emails",
+            })
+    else:
+        return render(req, 'web_page/search_content_contact_box.html', {})
+
+
+class ContactsList(APIView):  # Contacts List for any User
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        contacts = ProfileContact.objects.all().filter(user=request.user)  # queryset
+        x = ContactSerializer(contacts, many=True)  # serializer(queryset)
+        return Response({
+            'contacts': x.data
+        })
 
 
 # <------ start Label section ------>
@@ -650,13 +709,17 @@ def search_content_email(req):
             json_data = json.loads(req.body)
             text = json_data['text']
 
-        email = Email.objects.filter(subject__contains=text)
-        email_list = email.values_list('subject', 'text')
-        email_lst = list(itertools.chain(*email_list))
-        emails = [i for i in email_lst if i]
+        email = Email.objects.filter((Q(subject__contains=text, subject__isnull=False) |
+                                      Q(text__contains=text, text__isnull=False))
+                                     & (Q(sender=req.user) |
+                                        Q(receiver_to=req.user)
+                                        | Q(receiver_cc=req.user)
+                                        | Q(receiver_bcc=req.user)))
+        email_list = list(email.values('text', 'subject', 'pk'))
+
         if email:
             return JsonResponse({
-                'emails': emails
+                'emails': email_list,
             })
         else:
             return JsonResponse({

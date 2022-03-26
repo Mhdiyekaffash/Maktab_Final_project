@@ -1,9 +1,9 @@
 {% extends 'web_page/layout/_base.html' %}
-{% block title %}AllMail{% endblock %}
+{% block title %}Add signature{% endblock %}
 {% block body %}
     <form action="" method="post" style="margin-top: 20px">
         {% csrf_token %}
         {{ form.text }}
-        <input type="submit">
+        <input type="submit" value="save">
     </form>
 {% endblock body %}

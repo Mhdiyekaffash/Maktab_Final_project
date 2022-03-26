@@ -1,20 +1,16 @@
 function show_emails(data) {
     my_ul_tag = $('#mu_ul')
     my_ul_tag.empty()
-    console.log("*", data);
-    console.log("*%%%", data.emails);
-    var emails = data.emails;
-    if (emails) {
-        for (const email in emails) {
-            console.log("*", email.pk);
-            console.log("*000", emails[email].pk);
+    var contacts = data.contacts;
+    if (contacts) {
+        for (const contact in contacts) {
 
             var li = document.createElement("li");
             var a = document.createElement('a');
-            var linkText = document.createTextNode(emails[email].subject);
+            var linkText = document.createTextNode(contacts[contact].email);
             a.appendChild(linkText);
-            a.title = emails[email].subject;
-            a.href = "/web_page/email-detail/" + emails[email].pk;
+            a.title = contacts[contact].first_name;
+            a.href = "/web_page/contactdetail/" + contacts[contact].pk;
             li.append(a)
             my_ul_tag.append(li)
         }
@@ -25,12 +21,11 @@ function show_emails(data) {
 
 }
 
-
 function send_ajax(input_data) {
 
     $.ajax({
         type: 'POST',
-        url: "/web_page/search_email/",
+        url: "/web_page/search_contact/",
         dataType: 'json',
         data: {
             'csrfmiddlewaretoken': CSRF_TOKEN,
