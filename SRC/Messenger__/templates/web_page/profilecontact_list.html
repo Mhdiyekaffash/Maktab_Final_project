@@ -278,19 +278,21 @@
         <div class="col-lg-12">
             <div class="card chat-app">
                 <div id="plist" class="people-list">
-                    {#                    <div class="input-group">#}
-                    {#                        <div class="input-group-prepend">#}
-                    {#                            <span class="input-group-text"><i class="fa fa-search"></i></span>#}
-                    {#                        </div>#}
-                    {#                        <input type="text" class="form-control" placeholder="Search...">#}
-                    {#                    </div>#}
+
                     <form method="post">
                         {% csrf_token %}
-                        <div class="autocomplete" style="width:300px;">
-                            <input id="contact" type="text" name="contact" placeholder="contacts">
+
+                         <div class="input-group">
+                        <div class="input-group-prepend" style="margin-left: 50px">
+                            <a href="{% url "search_contact" %}"><span class="input-group-text"><i class="fa fa-search"></i></span>
+                            <span style="text-decoration: none" >search contact</span>
+                            </a>
                         </div>
 
-                        <input type="submit" value="Send" name="send">
+{#                        <input type="text" class="form-control" placeholder="Search...">#}
+                    </div>
+{##}
+{#                        <input type="submit" value="Send" name="send">#}
                     </form>
                     <ul class="list-unstyled chat-list mt-2 mb-0">
                         {% for contact in contacts %}

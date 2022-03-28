@@ -44,6 +44,7 @@ class CreateEmail(LoginRequiredMixin, View):
 
     def post(self, request):
 
+        global user_logined
         form = CreateEmailForm(request.POST, request.FILES)
 
         receiver_to = request.POST["to"]  # Taken from the input
@@ -120,28 +121,70 @@ class CreateEmail(LoginRequiredMixin, View):
                 EmailFolder(user=user_login, email=email).save()
 
                 for receiver in to_list:
-                    filters = Filter.objects.filter(owner=User.objects.get(username=receiver))
+                    user_logined = User.objects.get(username=receiver)
+                    EmailFolder(user=user_logined, email=email).save()
+                    filters = Filter.objects.filter(owner=user_logined)
                     for filter in filters:
                         if str(filter.filter_by) in email.subject or str(filter.filter_by) in email.text \
                                 or str(filter.filter_by) in email.sender.username:
                             email.filter.add(filter)
-                    EmailFolder(user=User.objects.get(username=receiver), email=email).save()
+                            email.label.add(filter.label)
+
+                            if filter.label.title == 'Trash':
+                                email_folders = EmailFolder.objects.filter(email=email.pk, user=user_logined)
+                                for i in email_folders:
+                                    i.is_trash = True
+                                    i.save()
+
+                            if filter.label.title == 'Archive':
+                                email_folders = EmailFolder.objects.filter(email=email.pk, user=user_logined)
+                                for i in email_folders:
+                                    i.is_archive = True
+                                    i.save()
 
                 for receiver in cc_list:
-                    filters = Filter.objects.filter(owner=User.objects.get(username=receiver))
+                    user_logined = User.objects.get(username=receiver)
+                    EmailFolder(user=user_logined, email=email).save()
+                    filters = Filter.objects.filter(owner=user_logined)
                     for filter in filters:
                         if str(filter.filter_by) in email.subject or str(filter.filter_by) in email.text \
                                 or str(filter.filter_by) in email.sender.username:
                             email.filter.add(filter)
-                    EmailFolder(user=User.objects.get(username=receiver), email=email).save()
+                            email.label.add(filter.label)
+
+                            if filter.label.title == 'Trash':
+                                email_folders = EmailFolder.objects.filter(email=email.pk, user=user_logined)
+                                for i in email_folders:
+                                    i.is_trash = True
+                                    i.save()
+
+                            if filter.label.title == 'Archive':
+                                email_folders = EmailFolder.objects.filter(email=email.pk, user=user_logined)
+                                for i in email_folders:
+                                    i.is_archive = True
+                                    i.save()
 
                 for receiver in bcc_list:
-                    filters = Filter.objects.filter(owner=User.objects.get(username=receiver))
+                    user_logined = User.objects.get(username=receiver)
+                    EmailFolder(user=user_logined, email=email).save()
+                    filters = Filter.objects.filter(owner=user_logined)
                     for filter in filters:
                         if str(filter.filter_by) in email.subject or str(filter.filter_by) in email.text \
                                 or str(filter.filter_by) in email.sender.username:
                             email.filter.add(filter)
-                    EmailFolder(user=User.objects.get(username=receiver), email=email).save()
+                            email.label.add(filter.label)
+
+                            if filter.label.title == 'Trash':
+                                email_folders = EmailFolder.objects.filter(email=email.pk, user=user_logined)
+                                for i in email_folders:
+                                    i.is_trash = True
+                                    i.save()
+
+                            if filter.label.title == 'Archive':
+                                email_folders = EmailFolder.objects.filter(email=email.pk, user=user_logined)
+                                for i in email_folders:
+                                    i.is_archive = True
+                                    i.save()
 
                 messages.add_message(request, messages.SUCCESS,
                                      f'email sent successfully. 😊👌')
@@ -210,7 +253,6 @@ class AddLabel(View):
         return render(request, 'web_page/add_label_to_email.html', {'query': list(query)})
 
     def post(self, request, pk):
-        print(request.POST)
         label = request.POST.getlist('selected_label')
         email = Email.objects.get(id=pk)
         label_id = [Label.objects.get(title=i) for i in label]
@@ -733,7 +775,16 @@ def search_content_email(req):
 class FilterEmail(LoginRequiredMixin, View):
 
     def get(self, request):
-        return render(request, 'web_page/filter_email.html', {})
+
+        query = Label.objects.filter(user=request.user).values_list('title', flat=True)
+        if 'Trash' not in list(query):
+            Label.objects.create(title='Trash', user=request.user)
+
+        if 'Archive' not in list(query):
+            Label.objects.create(title='Archive', user=request.user)
+
+        query = Label.objects.filter(user=request.user).values_list('title', flat=True)
+        return render(request, 'web_page/filter_email.html', {'query': list(query)})
 
     def post(self, request):
 
@@ -746,24 +797,61 @@ class FilterEmail(LoginRequiredMixin, View):
                     Q(sender=User.objects.get(username=search_input)) & (Q(receiver_to=request.user) |
                                                                          Q(receiver_cc=request.user) |
                                                                          Q(receiver_bcc=request.user)))
+                for e in query:
+                    email_folder = EmailFolder.objects.filter(email=e.pk, user=request.user.pk)
+                    for i in email_folder:
+                        if i.is_trash is True:
+                            query = query.exclude(pk=e.pk)
 
-                filter_ = Filter(title=request.POST['filter_name'], filter_by=search_input, owner=request.user)
-                filter_.save()
+                label = request.POST['selected_label']
+                selected_label = Label.objects.filter(title=label)[0]
+                filter = Filter(label=selected_label, owner=request.user, filter_by=search_input)
+                filter.save()
                 for i in query:
-                    i.filter.add(filter_.id)
+                    i.filter.add(filter.id)
+                    i.label.add(selected_label.id)
+
+                for email in query:
+                    places = EmailFolder.objects.filter(email=email.pk, user=request.user)
+                    for place in places:
+                        if label == 'Trash':
+                            place.is_trash = True
+                            place.save()
+                        if label == 'Archive':
+                            place.is_archive = True
+                            place.save()
 
                 return render(request, 'web_page/emails_filterd.html', {'query': list(query)})
 
         if 'word' in request.POST:
             search_input = request.POST['word']
-            query = Email.objects.filter(Q(subject__contains=search_input) | Q(text__contains=search_input) &
+
+            query = Email.objects.filter((Q(subject__contains=search_input) | Q(text__contains=search_input)) &
                                          (Q(receiver_to=request.user) |
                                           Q(receiver_cc=request.user) |
                                           Q(receiver_bcc=request.user)))
 
-            filter_ = Filter(title=request.POST['filter_name'], filter_by=search_input, owner=request.user)
-            filter_.save()
+            for e in query:
+                email_folder = EmailFolder.objects.filter(email=e.pk, user=request.user.pk)
+                for i in email_folder:
+                    if i.is_trash is True:
+                        query = query.exclude(pk=e.pk)
+            label = request.POST['selected_label']
+            selected_label = Label.objects.filter(title=label)[0]
+            filter = Filter(label=selected_label, owner=request.user, filter_by=search_input)
+            filter.save()
             for i in query:
-                i.filter.add(filter_.id)
+                i.filter.add(filter.id)
+                i.label.add(selected_label.id)
+
+            for email in query:
+                places = EmailFolder.objects.filter(email=email.pk, user=request.user)
+                for place in places:
+                    if label == 'Trash':
+                        place.is_trash = True
+                        place.save()
+                    if label == 'Archive':
+                        place.is_archive = True
+                        place.save()
 
             return render(request, 'web_page/emails_filterd.html', {'query': list(query)})

@@ -10,8 +10,7 @@ urlpatterns = [
     path('email-replay/<int:pk>', ReplyEmail.as_view(), name="email_replay"),
     path('Forward/<int:pk>', Forward.as_view(), name="email_forward"),
 
-    path('search_email/', search_content_email, name="search_email"),
-    path('search_contact/', search_content_contact, name="search_contact"),
+    path('search_email/', search_content_email, name="search_email"),  # search by ajax
 
     path('filter-email/', FilterEmail.as_view(), name="filter-email"),
 
@@ -26,6 +25,7 @@ urlpatterns = [
     path('contact_csv/', exportcsv, name='contact_csv'),
     path('search-contacts/', SearchContacts.as_view(), name='search-contacts'),
 
+    path('search_contact/', search_content_contact, name="search_contact"),  # search by ajax
     path('api/contacts/', ContactsList.as_view(), name='contacts-list'),  # Contacts List for any User
 
     # Label section
