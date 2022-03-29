@@ -51,6 +51,20 @@
                     </div>
                 </div>
 
+                <div class="dropdown">
+                    <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"
+                            aria-expanded="false" style="height: 50px">
+                        Search
+                        <span class="caret"></span>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="{% url 'search_email' %}">Search Emails</a>
+                        <a href="{% url 'search-byLabel' %}">Search by Label</a>
+                        <a href="{% url 'filter-email' %}">Filter</a>
+
+                    </div>
+                </div>
+
                 <form method="post" style="margin-left: 5px; margin-top: 5px">{% csrf_token %}
                     <div class="input-group autocomplete" style="margin-right: 10px" class="">
                         <input type="search" class="form-control rounded" placeholder="Search"

@@ -36,12 +36,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
     'account.apps.AccountConfig',
     'web_page.apps.WebPageConfig',
     'widget_tweaks',
     'crispy_forms',
     'dbbackup',
-    'rest_framework',
+
 ]
 
 DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
@@ -180,11 +182,11 @@ DBBACKUP_CONNECTORS = {
     }
 }
 
-# REST_FRAMEWORK = {
-#    'DEFAULT_AUTHENTICATION_CLASSES': (
-#        'rest_framework.authentication.TokenAuthentication',
-#    ),
-#    'DEFAULT_PERMISSION_CLASSES': (
-#         'rest_framework.permissions.IsAdminUser'
-#    ),
-# }
+REST_FRAMEWORK = {
+   'DEFAULT_AUTHENTICATION_CLASSES': (
+       'rest_framework.authentication.TokenAuthentication',
+   ),
+   # 'DEFAULT_PERMISSION_CLASSES': (
+   #      'rest_framework.permissions.IsAdminUser'
+   # ),
+}

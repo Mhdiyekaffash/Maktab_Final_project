@@ -6,4 +6,10 @@
     {{ object.user.username }}<br>
     {{ object.pk }}
 
+    <div style="margin-top: 20px; color: #491217">
+        <button class="btn_blue"><i class="fa fa-trash"></i><a
+                href="{% url 'signature_delete' object.pk %}">Delete
+            Signature </a></button>
+    </div>
+
 {% endblock body %}

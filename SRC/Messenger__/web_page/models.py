@@ -78,6 +78,11 @@ class Email(models.Model):
     sender = models.ForeignKey(User, on_delete=models.PROTECT, null=True, related_name='sender', blank=True)
     filter = models.ManyToManyField(Filter, related_name='filters', blank=True)
 
+    @property
+    def file_size(self):
+        if self.file and hasattr(self.file, 'size'):
+            return self.file.size
+
     def __str__(self):
         return str(self.subject)
 

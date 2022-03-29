@@ -51,6 +51,7 @@ urlpatterns = [
     path('create-signature/', CreateSignature.as_view(), name='create-signature'),
     path('signature-detail/<int:pk>', SignatureDetail.as_view(), name='signature-detail'),
     path('signatures/', SignatureList.as_view(), name='signatures'),
+    path('signature_delete/<int:pk>', SignatureDelete.as_view(), name='signature_delete'),
 
     path('search_email/', search_content_email, name="search_email"),
 ]
