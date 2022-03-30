@@ -6,7 +6,7 @@
 </head>
 <body>
     {% for email in query %}
-        <p><a href="{% url 'email_detail' email.pk %}">email</a></p>
+        <p><a href="{% url 'email_detail' email.pk %}">{{ email.subject }}</a></p>
     {% endfor %}
 </body>
 </html>

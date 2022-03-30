@@ -23,7 +23,7 @@
                                     </td>
                                     <td>
                                         <a href="/web_page/email-detail/{{ email.pk }}"><i
-                                                class="fa fa-circle text-info m-r-15"></i>{{ email.text|truncatewords:5  }}
+                                                class="fa fa-circle text-info m-r-15"></i>{{ email.text|truncatechars:5  }}
                                         </a>
                                     </td>
                                     {% if email.is_starred %}
@@ -42,9 +42,7 @@
                         <hr>
 
                         <div class="row">
-                            <div class="col-xs-7">
-                                Showing 1 - 20 of 289
-                            </div>
+
 
                             <div class="col-xs-5">
                                 <div class="btn-group pull-right">

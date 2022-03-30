@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
     'account.apps.AccountConfig',
     'web_page.apps.WebPageConfig',
     'widget_tweaks',
@@ -178,4 +180,13 @@ DBBACKUP_CONNECTORS = {
         'PORT': '5432',
 
     }
+}
+
+REST_FRAMEWORK = {
+   'DEFAULT_AUTHENTICATION_CLASSES': (
+       'rest_framework.authentication.TokenAuthentication',
+   ),
+   # 'DEFAULT_PERMISSION_CLASSES': (
+   #      'rest_framework.permissions.IsAdminUser'
+   # ),
 }

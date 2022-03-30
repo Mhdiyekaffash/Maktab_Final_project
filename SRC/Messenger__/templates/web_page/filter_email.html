@@ -1,18 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <form method="post">
+{{% extends 'web_page/layout/_base.html' %}
+{% block title %}Add Label{% endblock %}
+{% block body %}
+    <form method="post" style="margin-top: 20px">
         {% csrf_token %}
 
         <input type="text" name="sender" placeholder="sender">
         <input type="text" name="word" placeholder="word">
-        <input type="text" name="filter_name" placeholder="Filter Name">
-        <input type="submit" value="filter">
+
+            <label><b>Label</b></label>
+
+        <select name="selected_label" >
+
+            {% for q in query %}
+            <option>{{ q }}</option>
+            {% endfor %}
+
+        </select>
+
+        <div style="margin-top: 30px">
+            <input type="submit" value="Submit?">
+        </div>
+
 
     </form>
-</body>
-</html>
+
+{% endblock body %}

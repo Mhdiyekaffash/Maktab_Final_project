@@ -1,5 +1,5 @@
 {% extends 'web_page/layout/_base.html' %}
-{% block title %}SentBox{% endblock %}
+{% block title %}Trash{% endblock %}
 {% block body %}
     <section>
         <div class="panel panel-default m-t-20">
@@ -19,11 +19,11 @@
                                         <i class="fa fa-star"></i>
                                     </td>
                                     <td>
-                                        <a href="/web_page/email-detail/{{ email.pk }}">{{ email.subject}}</a>
+                                        <a href="/web_page/email-detail/{{ email.pk }}">{{ email.subject|truncatechars:5}}</a>
                                     </td>
                                     <td>
                                         <a href="/web_page/email-detail/{{ email.pk }}"><i
-                                                class="fa fa-circle text-info m-r-15"></i>{{ email.text|truncatewords:5  }}
+                                                class="fa fa-circle text-info m-r-15"></i>{{ email.text|truncatechars:5  }}
                                         </a>
                                     </td>
                                     {% if email.is_starred %}

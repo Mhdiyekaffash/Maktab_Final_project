@@ -1,4 +1,6 @@
 from django import forms
+from django.forms import TextInput
+
 from .models import Email, Label, ProfileContact, Signature
 
 

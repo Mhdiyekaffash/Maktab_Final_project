@@ -19,6 +19,7 @@ from account.views import Login, PasswordChange
 from django.urls import path, include
 from account.views import Register, ActivateAccount
 from web_page.views import DisplayAllEmail
+from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
     # path('', include('account.urls')),
@@ -31,6 +32,7 @@ urlpatterns = [
     path('web_page/', include('web_page.urls')),
     path('signup/', Register.as_view(), name='register'),
     path('activate/<uidb64>/<token>/', ActivateAccount.as_view(), name='activate'),
+    path('api-token-auth/', obtain_auth_token),
 ]
 
 from django.conf import settings

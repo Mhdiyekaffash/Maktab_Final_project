@@ -10,9 +10,11 @@ urlpatterns = [
     path('email-replay/<int:pk>', ReplyEmail.as_view(), name="email_replay"),
     path('Forward/<int:pk>', Forward.as_view(), name="email_forward"),
 
-    path('search_email/', search_content_email, name="search_email"),
+    path('search_email/', search_content_email, name="search_email"),  # search by ajax
 
     path('filter-email/', FilterEmail.as_view(), name="filter-email"),
+
+    path('api/emails/', EmailsList.as_view(), name='emails-list'),  # Emails List for any User
 
     # Contact section
     path('CreateContact/', CreateContact.as_view(), name="CreateContact"),
@@ -22,6 +24,9 @@ urlpatterns = [
     path('edite_contact/<int:pk>', UpdateContact.as_view(), name='edite_contact'),
     path('contact_csv/', exportcsv, name='contact_csv'),
     path('search-contacts/', SearchContacts.as_view(), name='search-contacts'),
+
+    path('search_contact/', search_content_contact, name="search_contact"),  # search by ajax
+    path('api/contacts/', ContactsList.as_view(), name='contacts-list'),  # Contacts List for any User
 
     # Label section
     path('CreateLabel/', CreateLabel.as_view(), name="CreateLabel"),
@@ -46,6 +51,7 @@ urlpatterns = [
     path('create-signature/', CreateSignature.as_view(), name='create-signature'),
     path('signature-detail/<int:pk>', SignatureDetail.as_view(), name='signature-detail'),
     path('signatures/', SignatureList.as_view(), name='signatures'),
+    path('signature_delete/<int:pk>', SignatureDelete.as_view(), name='signature_delete'),
 
     path('search_email/', search_content_email, name="search_email"),
 ]

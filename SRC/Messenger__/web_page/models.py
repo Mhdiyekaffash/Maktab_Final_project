@@ -6,7 +6,7 @@ from django.utils.text import slugify
 
 class Label(models.Model):
     title = models.CharField(max_length=20, null=False)
-    slug = models.SlugField(max_length=20, unique=True, null=True)
+    slug = models.SlugField(max_length=20, null=True)
     user = models.ForeignKey(User, related_name='label_user', on_delete=models.CASCADE, null=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -20,9 +20,12 @@ class Label(models.Model):
 
 
 class Filter(models.Model):
-    title = models.CharField(max_length=50)
-    filter_by = models.CharField(max_length=100, null=True, blank=True)  # todo: null=False
+    filter_by = models.CharField(max_length=100)
+    label = models.ForeignKey(Label, on_delete=models.CASCADE, null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.filter_by} + {self.owner}'
 
 
 class ProfileContact(models.Model):
@@ -74,6 +77,11 @@ class Email(models.Model):
     sign = models.ForeignKey(Signature, on_delete=models.SET_NULL, null=True, blank=True)
     sender = models.ForeignKey(User, on_delete=models.PROTECT, null=True, related_name='sender', blank=True)
     filter = models.ManyToManyField(Filter, related_name='filters', blank=True)
+
+    @property
+    def file_size(self):
+        if self.file and hasattr(self.file, 'size'):
+            return self.file.size
 
     def __str__(self):
         return str(self.subject)

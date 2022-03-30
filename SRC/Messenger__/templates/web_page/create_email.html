@@ -1,7 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{#<!DOCTYPE html>#}
+{#<html>#}
+{#<head>#}
+{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
+{% extends 'web_page/layout/_base.html' %}
+{% block title %}Trash{% endblock %}
+
     <style>
         * {
             box-sizing: border-box;
@@ -63,9 +66,8 @@
             color: #ffffff;
         }
     </style>
-</head>
-<body>
-
+{% block body %}
+    <section style="margin: 30px">
     <form autocomplete="off" action="" method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
@@ -100,6 +102,5 @@
 
     </form>
 
-
-</body>
-</html>
+</section>
+{% endblock body%}

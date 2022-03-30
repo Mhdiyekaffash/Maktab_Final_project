@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <form method="post">
+{% extends 'web_page/layout/_base.html' %}
+{% block title %}Add Label{% endblock %}
+{% block body %}
+    <form method="post" style="margin-top: 20px">
         {% csrf_token %}
         <p>title : {{ form.title }}</p>
         <input type="submit" value="save">
     </form>
-</body>
-</html>
+{% endblock body %}
