@@ -32,8 +32,8 @@ def size_format(value):
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = (
-        'first_name', 'last_name', 'username', 'birthday', 'gender_type', 'country_type', 'is_active', 'is_staff',
-        'get_user_storage', 'email_sent', 'email_recivrerd', 'get_user_storage',)
+        'username', 'first_name', 'last_name', 'birthday', 'gender_type', 'country_type', 'is_active', 'is_staff',
+        'email_sent', 'email_recivrerd', 'get_user_storage',)
     #     search_fields = ('username', 'first_name', 'last_name', 'gender_type')
 
     list_filter = ('date_joined',)
@@ -59,7 +59,7 @@ class UserAdmin(admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
         # Aggregate new subscribers per day
         chart_data = (
-            User.objects.annotate(date=TruncDay("date_joined"))
+            User.objects.annotate(date=TruncMonth("date_joined"))
                 .values("date")
                 .annotate(y=Count("id"))
                 .order_by("-date")
@@ -103,7 +103,7 @@ class UserAdmin(admin.ModelAdmin):
 
     def chart_data(self):
         return (
-            User.objects.annotate(date=TruncDay("date_joined"))
+            User.objects.annotate(date=TruncMonth("date_joined"))
                 .values("date")
                 .annotate(y=Count("id"))
                 .order_by("-date")
