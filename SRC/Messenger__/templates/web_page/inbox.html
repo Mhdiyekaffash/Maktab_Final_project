@@ -6,9 +6,10 @@
 
                     <div class="panel-body">
                     <h3 style="color: #0f6674"> To:</h3>
+                    <table class="table table-hover mails">
                         {% for email_to in emails_to %}
-                            <table class="table table-hover mails">
-                                <tbody>
+
+{#                                <tbody>#}
                                 <tr>
                                     <td class="mail-select">
                                         <label class="cr-styled">
@@ -23,7 +24,7 @@
                                     </td>
                                     <td>
                                         <a href="/web_page/email-detail/{{ email_to.pk }}"><i
-                                                class="fa fa-circle text-info m-r-15"></i>{{ email_to.text|truncatechars:5  }}
+                                                class="fa fa-circle text-info m-r-15"></i>{{ email_to.text|truncatechars:5 |safe }}
                                         </a>
                                     </td>
 {#                                    {% if email.is_starred %}#}
@@ -32,19 +33,21 @@
 {#                                        </td>#}
 {#                                    {% endif %}#}
                                     <td class="text-right">
-                                        {{ email.created }}
+                                        {{ email_to.created }}
                                     </td>
                                 </tr>
 
-                                </tbody>
-                            </table>
+{#                                </tbody>#}
+
                         {% endfor %}
+                    </table>
                         <hr>
                     <h3 style="color: #0f6674"> Cc:</h3>
+                    <table class="table table-hover mails">
                         {% for email_cc in emails_cc %}
 {#                            {% if email_to.is_trash == Fulse %}#}
-                            <table class="table table-hover mails">
-                                <tbody>
+
+{#                                <tbody>#}
 
                                 <tr>
                                     <td class="mail-select">
@@ -60,7 +63,7 @@
                                     </td>
                                     <td>
                                         <a href="/web_page/email-detail/{{ email_cc.pk }}"><i
-                                                class="fa fa-circle text-info m-r-15"></i>{{ email_cc.text|truncatechars:5  }}
+                                                class="fa fa-circle text-info m-r-15"></i>{{ email_cc.text|truncatechars:5 |safe }}
                                         </a>
                                     </td>
 {#                                    {% if email.is_starred %}#}
@@ -69,21 +72,23 @@
 {#                                        </td>#}
 {#                                    {% endif %}#}
                                     <td class="text-right">
-                                        {{ email.created }}
+                                        {{ email_cc.created }}
                                     </td>
                                 </tr>
 
-                                </tbody>
-                            </table>
+{#                                </tbody>#}
+
 {#                            {% endif %}#}
                         {% endfor %}
+                    </table>
                         <hr>
                     <h3 style="color: #0f6674"> Bcc:</h3>
+                    <table class="table table-hover mails">
                         {% for email_bcc in emails_bcc %}
 {#                            {% if email_to.is_trash == Fulse %}#}
-                            <table class="table table-hover mails">
 
-                                <tbody>
+
+{#                                <tbody>#}
                                 <tr>
                                     <td class="mail-select">
                                         <label class="cr-styled">
@@ -97,30 +102,30 @@
                                         <a href="/web_page/email-detail/{{ email_bcc.pk }}">{{ email_bcc.subject|truncatechars:5 }}</a>
                                     </td>
                                     <td>
-                                        <a href="/web_page/email-detail/{{ email_bcc.pk }}"><i
-                                                class="fa fa-circle text-info m-r-15"></i>{{ email_bcc.text|truncatechars:5  }}
+                                        <a href="/web_page/email-detail/{{ email_bcc.pk }}">{{ email_bcc.text|truncatewords:5|safe  }}
                                         </a>
                                     </td>
-{#                                    {% if email.is_starred %}#}
-{#                                    <td>#}
-{#                                        <i class="fa fa-paperclip"></i>#}
-{#                                    </td>#}
-{#                                    {% endif %}#}
+                                    {% if email.is_starred %}
+                                    <td>
+                                        <i class="fa fa-paperclip"></i>
+                                    </td>
+                                    {% endif %}
                                     <td class="text-right">
-                                        {{ email.created }}
+                                        {{ email_bcc.created }}
                                     </td>
                                 </tr>
 
-                                </tbody>
-                            </table>
+{#                                </tbody>#}
+
 {#                            {% endif %}#}
                         {% endfor %}
+                    </table>
                         <hr>
 
                         <div class="row">
-                            <div class="col-xs-7">
-                                Showing 1 - 20 of 289
-                            </div>
+{#                            <div class="col-xs-7">#}
+{#                                Showing 1 - 20 of 289#}
+{#                            </div>#}
 
                             <div class="col-xs-5">
                                 <div class="btn-group pull-right">

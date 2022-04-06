@@ -54,4 +54,7 @@ urlpatterns = [
     path('signature_delete/<int:pk>', SignatureDelete.as_view(), name='signature_delete'),
 
     path('search_email/', search_content_email, name="search_email"),
+
+
+    path('<int:label_id>/', detail, name='detail'),
 ]

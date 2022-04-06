@@ -4,7 +4,6 @@ from .models import User
 
 
 class SignupForm(UserCreationForm):
-    # email = forms.EmailField(max_length=200)
 
     class Meta:
         model = User

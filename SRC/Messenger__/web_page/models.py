@@ -2,6 +2,7 @@ from django.db import models
 from account.models import User
 from .validators import validate_file_size
 from django.utils.text import slugify
+from ckeditor.fields import RichTextField
 
 
 class Label(models.Model):
@@ -11,7 +12,7 @@ class Label(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            self.slug = slugify(self.title + self.user.username)
 
         super().save(*args, **kwargs)
 
@@ -59,7 +60,7 @@ class Signature(models.Model):
 
 class Email(models.Model):
     subject = models.CharField(max_length=100, null=True, blank=True)
-    text = models.TextField(max_length=1000, null=True, blank=True)
+    text = RichTextField(blank=True, null=True)
     file = models.FileField(upload_to='Files', null=True, blank=True, validators=[validate_file_size])
     created = models.DateTimeField(auto_now_add=True)
     edited = models.DateTimeField(auto_now=True)
@@ -68,10 +69,7 @@ class Email(models.Model):
     receiver_bcc = models.ManyToManyField(User, related_name='receivers_bcc', null=True, blank=True)
     label = models.ManyToManyField(Label, related_name='labels', blank=True)
     slug = models.SlugField(max_length=20, unique=True, null=True)
-    is_starred = models.BooleanField(default=False)
-    is_draft = models.BooleanField(default=False)
-    is_trash = models.BooleanField(default=False)
-    is_read = models.BooleanField(default=False)
+    # is_read = models.BooleanField(default=False)
     email_obj = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
     # This field is used for replay ☝
     sign = models.ForeignKey(Signature, on_delete=models.SET_NULL, null=True, blank=True)

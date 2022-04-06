@@ -14,7 +14,7 @@ class EmailDetailForm(forms.ModelForm):
     class Meta:
         model = Email
         fields = ['sender', 'subject', 'text', 'file', 'receiver_to',
-                  'receiver_cc', 'receiver_bcc', 'label', 'sign', 'is_draft', 'is_starred', 'is_trash']
+                  'receiver_cc', 'receiver_bcc', 'label', 'sign']
 
 
 class ReplyForm(forms.ModelForm):

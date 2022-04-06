@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'crispy_forms',
     'dbbackup',
-
+    'ckeditor'
 ]
 
 DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
@@ -186,7 +186,50 @@ REST_FRAMEWORK = {
    'DEFAULT_AUTHENTICATION_CLASSES': (
        'rest_framework.authentication.TokenAuthentication',
    ),
-   # 'DEFAULT_PERMISSION_CLASSES': (
-   #      'rest_framework.permissions.IsAdminUser'
-   # ),
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'web_page_file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': 'mail.log',
+        },
+        'account_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'accounts.log',
+        },
+    },
+    'loggers': {
+        'web_page': {
+            'handlers': ['web_page_file', 'console'],
+            'level': 'WARNING',
+            'propagate': False,
+            'exc_info': False
+        },
+        'account': {
+            'handlers': ['account_file'],
+            'level': 'WARNING',
+        },
+    }
+}
+
+CKEDITOR_UPLOAD_PATH = 'uploads/'
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Advanced',
+    },
 }
