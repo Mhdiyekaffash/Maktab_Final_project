@@ -15,6 +15,9 @@ from django.contrib.auth import login, authenticate, logout
 from .models import User
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
+import logging
+
+logger = logging.getLogger('account')
 
 
 # Sign Up View
@@ -44,9 +47,10 @@ class Register(View):
             user.email_user(subject, message)
 
             messages.success(request, ('Please Confirm your email to complete registration.'))
-
+            logger.info(f"account {user} Added.")
             return HttpResponse('An activation link was sent to your email. <a href="/login">login</a>')
 
+        logger.error(f"register form is not valid.")
         return render(request, self.template_name, {'form': form})
 
 
@@ -64,9 +68,11 @@ class ActivateAccount(View):
             user.username += '@gmail.com'
             user.save()
             messages.success(request, ('Your account have been confirmed.'))
-            return HttpResponse('اکانت شما با موفقیت فعال شد. برای ورود <a href="/login">کلیک</a> کنید.')
+            logger.info(f"this {user} has been successfully activated.")
+            return HttpResponse('Your account has been successfully activated. <a  href="/login">click </a> ')
         else:
-            return HttpResponse('لینک فعال سازی منقضی شده است. <a href="/registration">دوباره امتحان کنید.</a>')
+            logger.error(f"Activation link has expired. for {user}")
+            return HttpResponse('Activation link has expired.  <a href="/signup">Please try again.</a>')
 
 
 class Login(LoginView):
@@ -75,6 +81,7 @@ class Login(LoginView):
         if user.is_active:
             return reverse_lazy("account:home")
         else:
+            logger.warning(f"{user} try to login but this account is not active")
             return reverse_lazy("account:profile")
 
 
@@ -91,23 +98,8 @@ class PasswordChange(PasswordChangeView):
 
 
 def Profile(View):
-    # model = User
-    # template_name = "registration/profile.html"
-    # form_class = ProfileForm
-    # success_url = reverse_lazy("account:profile")
-    #
-    # def get_object(self):
-    #     return User.objects.get(pk=self.request.user.pk)
-    #
-    # def get_form_kwargs(self):
-    #     kwargs = super(Profile, self).get_form_kwargs()  # etesal be view
-    #     kwargs.update({
-    #         'user': self.request.user
-    #     })
-    #     return kwargs
-    return HttpResponse("tamaaaaaaam :) !")
+    return HttpResponse("don't ready :( !")
 
 
-# @login_required  # if user attentication bood in view namayesh dade mishe
-def home( request):
-    return HttpResponse("tamaaaaaaam tammmaaaaaaaaaaaaaam :) !")
+def home(request):
+    return redirect('/')

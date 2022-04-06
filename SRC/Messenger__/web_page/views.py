@@ -1,6 +1,7 @@
 import csv
 import itertools
 import json
+import logging
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -24,6 +25,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
 from .serializer import ContactSerializer, EmailSerializer
+
+logger = logging.getLogger('web_page')
 
 """
 <----- Email section ----->
@@ -50,8 +53,6 @@ class CreateEmail(LoginRequiredMixin, View):
         receiver_to = request.POST["to"]  # Taken from the input
         receiver_cc = request.POST["cc"]  # ☝
         receiver_bcc = request.POST["bcc"]  # ☝
-        # text = request.POST["text"]  # ☝
-        # text = request.POST.get('text')
 
         if request.POST.get('selected_singature') != 'None':
             signature = Signature.objects.get(text=request.POST['selected_singature'], user=request.user)
@@ -88,6 +89,7 @@ class CreateEmail(LoginRequiredMixin, View):
             if i not in users_list:
                 messages.add_message(request, messages.WARNING,
                                      f"Sorry, there is no user with this {i} account. 🤔")
+                logger.error(f"there is no user with this {i} account. so this email dont creat")
                 return HttpResponseRedirect("/")
 
         # List of id all recipients who have an account on the site 👇
@@ -192,9 +194,12 @@ class CreateEmail(LoginRequiredMixin, View):
 
                 messages.add_message(request, messages.SUCCESS,
                                      f'email sent successfully. 😊👌')
+
+                # logger.error(f'email {email.subject} sent by {email.sender}')
                 return redirect('/')
 
         messages.error(request, form.errors)
+        logger.error(f'sorry, creat email form is not valid.')
         return redirect('/')
 
 
@@ -277,7 +282,10 @@ class ReplyEmail(LoginRequiredMixin, View):
                                  f'email replayed. 😊👌')
 
             return redirect('/')
-        return HttpResponse('🤔')
+        messages.add_message(request, messages.ERROR,
+                             f'Could not send. 😢')
+        logger.error(f'sorry, Replay form is not valid.')
+        return HttpResponse('Could not send')
 
 
 class Forward(LoginRequiredMixin, View):
@@ -302,8 +310,22 @@ class Forward(LoginRequiredMixin, View):
         cc_list = receiver_cc.split(',')
         bcc_list = receiver_bcc.split(',')
 
+        for i in to_list:
+            if i == '':
+                messages.add_message(request, messages.ERROR, "to is empty ,🤷‍️so this email doesn't Forwarded🤔")
+                return HttpResponseRedirect("/")
+
+        receivers = to_list + cc_list + bcc_list
         users = User.objects.all().values_list('username', flat=True)
         users_list = [i for i in users]  # List of all users who have an account on the site
+        receivers = [i for i in receivers if i]
+
+        for i in receivers:
+            if i not in users_list:
+                messages.add_message(request, messages.WARNING,
+                                     f"Sorry, there is no user with this {i} account. so this email doesn't Forward🤔")
+                logger.error(f"there is no user with this {i} account. so this email doesn't Forwarded🤔")
+                return HttpResponseRedirect("/")
 
         # List of all recipients (to) who have an account on the site
         to_list = [i for i in to_list if i in users_list]
@@ -364,8 +386,24 @@ class SendDraft(LoginRequiredMixin, View):
         cc_list = receiver_cc.split(',')
         bcc_list = receiver_bcc.split(',')
 
+        receivers = to_list + cc_list + bcc_list
+        receivers = [i for i in receivers if i]
+
         users = User.objects.all().values_list('username', flat=True)
         users_list = [i for i in users]  # List of all users who have an account on the site
+
+        for i in receivers:
+            if i not in users_list:
+                messages.add_message(request, messages.WARNING,
+                                     f"Sorry, there is no user with this {i}"
+                                     f" account. So this draft email will not be sent.")
+                logger.error(f"there is no user with this {i} account. So this draft email will not be sent.")
+                return HttpResponseRedirect("/")
+
+        for i in to_list:
+            if i == '':
+                messages.add_message(request, messages.ERROR, "to is empty ,🤷‍️So this draft email will not be sent.")
+                return HttpResponseRedirect("/")
 
         # List of all recipients (to) who have an account on the site
         to_list = [i for i in to_list if i in users_list]
@@ -538,6 +576,14 @@ class CreateContact(LoginRequiredMixin, View):
         form = CreateContactForm(request.POST, request.FILES)
         if form.is_valid():
             user = request.user
+
+            usernames = User.objects.all().values_list('username', flat=True)
+            if form.cleaned_data['email'] not in usernames:
+                messages.add_message(request, messages.ERROR, f"there is not this username"
+                                                              f"{form.cleaned_data['email']}, this contact doesn't save")
+                logger.error(f"there is not this username {form.cleaned_data['email']}, this contact doesn't save")
+                return redirect('/')
+
             contact_obj = ProfileContact(first_name=form.cleaned_data['first_name'],
                                          last_name=form.cleaned_data['last_name'],
                                          email=form.cleaned_data['email'],
@@ -549,6 +595,8 @@ class CreateContact(LoginRequiredMixin, View):
             contact_obj.save()
 
             return redirect(f'/web_page/ContactList')
+
+        logger.error('Creat contact form is not valid.')
         return HttpResponse(f"'not saved', {form.errors}")
 
 
@@ -654,6 +702,7 @@ class CreateLabel(LoginRequiredMixin, View):
 
             label_obj.save()
             return redirect(f'/web_page/labe-lList/')
+
         return HttpResponse(f"'not saved', {form.errors}")
 
 
@@ -683,9 +732,9 @@ class AddLabel(View):
     def post(self, request, pk):
         label = request.POST.getlist('selected_label')
         email = Email.objects.get(id=pk)
-        label_id = [Label.objects.get(title=i) for i in label]
+        label_id = [Label.objects.get(title=i, user=request.user).id for i in label]
         email.label.add(*label_id)
-        return HttpResponse('okay!')
+        return redirect(f"/web_page/email-detail/{pk}")
 
 
 class SearchByLabel(LoginRequiredMixin, View):
@@ -698,8 +747,9 @@ class SearchByLabel(LoginRequiredMixin, View):
         label_input = request.POST['search']
         emails = Email.objects.all().filter(
             Q(label__title__startswith=label_input) & (Q(sender=request.user.id)
-            | Q(receiver_to=request.user.id) | Q(receiver_cc=request.user.id) |
-            Q(receiver_bcc=request.user.id))).distinct()
+                                                       | Q(receiver_to=request.user.id) | Q(
+                        receiver_cc=request.user.id) |
+                                                       Q(receiver_bcc=request.user.id))).distinct()
         return render(request, 'web_page/result_search.html', {'emails': emails})
 
 
@@ -867,3 +917,15 @@ def exportcsv(request):
     for contact in contacts:
         writer.writerow(contact)
     return response
+
+
+def detail(request, label_id):
+    try:
+        label = Label.objects.get(id=label_id)
+    except:
+        message = f"Label with id {label_id} does not exist."
+        logger.error(message)
+
+        return HttpResponseRedirect("/")
+
+    return render(request, 'web_page/test_log.html', {"label": label})

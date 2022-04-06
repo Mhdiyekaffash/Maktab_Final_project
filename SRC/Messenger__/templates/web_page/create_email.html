@@ -1,7 +1,3 @@
-{#<!DOCTYPE html>#}
-{#<html>#}
-{#<head>#}
-{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
 {% extends 'web_page/layout/_base.html' %}
 {% block title %}Trash{% endblock %}
 
@@ -71,8 +67,10 @@
     <form autocomplete="off" action="" method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
+        {{ form.media }}
+
         <p>subject : {{ form.subject }}</p>
-        <p>text : {{ form.text }}</p>
+        <p>text : {{ form.text|safe}}</p>
         <p>file : {{ form.file }}</p>
 
         <div class="autocomplete" style="width:300px;">

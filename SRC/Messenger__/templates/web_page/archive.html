@@ -5,10 +5,8 @@
         <div class="panel panel-default m-t-20">
 
                     <div class="panel-body">
+                    <table class="table table-hover mails">
                         {% for email in emails_archived %}
-                            <table class="table table-hover mails">
-                                <tbody>
-
                                 <tr>
                                     <td class="mail-select">
                                         <label class="cr-styled">
@@ -22,8 +20,7 @@
                                         <a href="/web_page/email-detail/{{ email.pk }}">{{ email.subject}}</a>
                                     </td>
                                     <td>
-                                        <a href="/web_page/email-detail/{{ email.pk }}"><i
-                                                class="fa fa-circle text-info m-r-15"></i>{{ email.text|truncatechars:5  }}
+                                        <a href="/web_page/email-detail/{{ email.pk }}">{{ email.text|truncatewords:5 |safe }}
                                         </a>
                                     </td>
                                     {% if email.is_starred %}
@@ -36,9 +33,10 @@
                                     </td>
                                 </tr>
 
-                                </tbody>
-                            </table>
+{#                                </tbody>#}
+
                         {% endfor %}
+                    </table>
                         <hr>
 
                         <div class="row">
