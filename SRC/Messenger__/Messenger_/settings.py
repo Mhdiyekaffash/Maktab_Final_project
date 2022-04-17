@@ -166,8 +166,8 @@ LOGIN_URL = "login"  # If the user is not logged in, it goes back to the login p
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'kfashmhdyh@gmail.com'
-EMAIL_HOST_PASSWORD = 'gzpxckejwndantsd'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
 EMAIL_PORT = 587
 
 DBBACKUP_CONNECTORS = {
